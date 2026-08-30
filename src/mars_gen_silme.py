@@ -26,6 +26,20 @@ Tekli gen silme bulguları.
   - results/gen_silme_sonuclari.csv          (senaryo x gen x büyüme, ham veri)
   - results/mars_ozel_esansiyel_genler.csv   (SADECE Mars senaryolarında
     esansiyel, Dünya'da esansiyel OLMAYAN genler -- makalenin ana bulgu adayı)
+
+KRİTİK DÜZELTME (kullanıcının bilimsel doğruluk denetimi sırasında bulundu,
+2026-08-30): İlk çalıştırmada solver'ın VARSAYILAN feasibility tolerance'ı
+(1e-7) kullanılmıştı. "Sıkı marj" senaryolarında WT büyüme zaten çok küçük
+olduğundan (~0.0027/saat), biyokütle denklemindeki bazı kofaktörlerin
+(ör. menakinon, mql7_c) gerektirdiği akı da çok küçük çıkıyor -- bazı
+durumlarda solver toleransının sadece ~7 katı büyüklükte (7.2e-7 vs 1e-7).
+Bu, gen silindiğinde LP çözücünün gerçekte imkânsız olan bir akıyı "toleransa
+sığıyor" diye feasible/sıfırdan farklı büyüme olarak kabul etmesine yol açtı
+-- yani "pabB/menC/menD Mars'ta esansiyellikten çıkıyor" bulgusu SAYISAL BİR
+ARTEFAKTTI, gerçek bir biyolojik/model bulgusu değildi. Tolerance 1e-9'a
+çekilince (aşağıdaki SOLVER_TOLERANCE), bu 4 genin (pabB, menC, menD, folEA)
+DÖRDÜ DE Mars'ın üç senaryosunda da Dünya'daki gibi TAM ESANSİYEL çıkıyor --
+yani düzeltilmiş bulgu: hiçbir gen esansiyellik durumunu değiştirmiyor.
 """
 
 import os
@@ -40,6 +54,9 @@ SONUC_KLASORU = os.path.join(PROJE_KOKU, "results")
 
 ESANSIYELLIK_ESIGI = 0.01  # KO büyüme / WT büyüme bu değerin altındaysa "esansiyel"
 ISLEMCI_SAYISI = 4  # bkz. README; makinede daha fazla çekirdek varsa artırılabilir
+SOLVER_TOLERANCE = 1e-9  # varsayılan 1e-7 -- Mars senaryolarında WT büyüme çok küçük
+# olduğu için gerekli kofaktör akışları toleransa yakın kalıyor ve gevşek tolerans
+# sahte-feasible sonuçlar üretiyor (bkz. yukarıdaki KRİTİK DÜZELTME notu)
 
 # mars_duyarlilik.py'deki bisection ile bulunan t* (tam feasibility sınırı)
 # değerlerinin 0.01 ötesi -- yani "sınıra çok yakın, ama numerik olarak
@@ -56,6 +73,7 @@ def senaryo_calistir(etiket, kisit_uygula):
     model = modeli_yukle()
     if kisit_uygula is not None:
         kisit_uygula(model)
+    model.solver.configuration.tolerances.feasibility = SOLVER_TOLERANCE
 
     wt = model.optimize()
     print(f"{etiket}: WT büyüme = {wt.objective_value:.6f} (durum: {model.solver.status})")

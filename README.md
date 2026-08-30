@@ -113,14 +113,19 @@ Kısıt değerlerini gerekçelendirmek için yapılan taramanın bulguları:
 - **Gerçek Mars atmosfer bileşimi**: %95.54 CO₂, %0.13 O₂, %0.03 H₂O buharı,
   toplam basınç 0.69 kPa — ölçülmüş değerler.
   [Bacillus subtilis Spore Resistance to Simulated Mars Surface Conditions](https://pmc.ncbi.nlm.nih.gov/articles/PMC6399134/)
-  (*Frontiers in Microbiology*, PMC6399134). Aynı çalışmadan: UV'den korunan
+  (Cortesão ve ark. 2019, *Frontiers in Microbiology*, PMC6399134). Aynı çalışmadan: UV'den korunan
   sporlarda canlılık ~%73 korunmuş, UV dahil edildiğinde (8 saatte 115 kJ/m²
   UV-C) ~%6.6'ya düşmüş — Mars'ta asıl öldürücü faktörün kozmik radyasyondan
   çok **UV** olduğuna işaret ediyor.
-- **Kozmik (iyonlaştırıcı) radyasyon dozu**: NASA Curiosity/MSL-RAD ölçümleri,
-  yüzeyde günlük ~0.64-0.67 mSv, yıllık ~150-250 mSv (Dünya arka planının,
-  ~2-3 mSv/yıl, üstünde ama kronik bir doz — akut hücre ölümüne yol açacak
-  düzeyde değil).
+- **Kozmik (iyonlaştırıcı) radyasyon dozu**: [Hassler ve ark. 2014, *Science*](https://science.sciencemag.org/content/343/6169/1244797)
+  (NASA Curiosity/MSL-RAD, ~300 günlük ölçüm, 7 Ağustos 2012 - 1 Haziran 2013):
+  yüzeyde ortalama doz eşdeğeri **0.64±0.12 mSv/gün** (kalite faktörü ~3.05).
+  Bunu 365 güne yayıp "yıllık" bir sayıya ekstrapole etmek makalenin kendisinin
+  yapmadığı bir varsayım olur (Mars yılı zaten 687 Dünya günü, ölçüm dönemi
+  de tam bir yılı kapsamıyor) — bu yüzden sadece doğrudan ölçülen günlük
+  değer kullanılıyor. Dünya'nın yıllık doğal arka plan dozu (~2-3 mSv/yıl,
+  yani ~0.006-0.008 mSv/gün) ile karşılaştırıldığında bu kronik ama akut
+  hücre ölümüne yol açmayacak düzeyde bir doz.
 - **NGAM/ATPM referans değerleri**: BioNumbers'ta tür-spesifik "normal" bakım
   enerjisi değerleri var (ör. *Geobacter metallireducens* ~0.81 mmol
   ATP/gDW/h) ama radyasyon altında bu değerin nasıl arttığına dair
@@ -157,36 +162,42 @@ Gözlem: her bakım çarpanı için belirli bir şiddet eşiğine kadar model
 kayıyor (hayatta kalmak için daha fazla kaynak gerekiyor) hem de aynı şiddet
 seviyesindeki maksimum büyüme oranı düşüyor — beklenen, tutarlı bir davranış.
 
-## Tekli gen silme bulguları (`mars_gen_silme.py`, ilk çalıştırma 2026-08-30)
+## Tekli gen silme bulguları (`mars_gen_silme.py`)
 
 844 genin her biri tek tek silinip 4 senaryoda (Dünya benzeri referans + 3
 bakım çarpanının sınıra çok yakın "sıkı marj" noktası, t*+0.01) büyüme
 oranı yeniden hesaplandı. Sonuçlar: `results/gen_silme_sonuclari.csv` (ham
-veri), `results/mars_yeni_esansiyel_genler.csv`, `results/mars_dispanse_olan_genler.csv`.
+veri), `results/mars_yeni_esansiyel_genler.csv`, `results/mars_dispanse_olan_genler.csv`
+(ikisi de şu an boş — bkz. aşağıdaki düzeltilmiş bulgu).
 
-- Dünya benzeri referansta **171 esansiyel gen** / 844.
-- Üç Mars senaryosunun **üçünde de** (bakım çarpanından bağımsız, tutarlı):
-  **168 esansiyel gen** / 844.
-- Beklenen yönde (Mars'a özgü YENİ esansiyel gen) **hiçbir aday bulunamadı**.
-- Bunun yerine ters yönde bir etki bulundu: **3 gen Dünya'da esansiyelken
-  Mars'ın üç senaryosunda da esansiyel OLMAKTAN ÇIKIYOR**:
-  - `pabB` (BSU00740) — 4-amino-4-deoxychorismate synthase (folat/PABA biyosentezi)
-  - `menC` (BSU30780) — O-succinylbenzoate-CoA synthase (menakinon biyosentezi)
-  - `menD` (BSU30820) — 2-succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate synthase (menakinon biyosentezi)
-- **Yorum**: `menC`/`menD` menakinonun (solunum zinciri elektron taşıyıcısı)
-  biyosentezinde görev alıyor; O₂ ve karbon zaten Mars senaryosunda o kadar
-  kısıtlı ki, hücrenin darboğazı bu genlerin hizmet ettiği solunum-zinciri
-  kapasitesine hiç ulaşmıyor — pahalı bir biyosentez yolu artık "gerekli"
-  değil, "kullanılmıyor". `pabB` folat/tek-karbon metabolizmasına giriyor;
-  büyüme oranı zaten Mars'ta çok düşük olduğundan nükleotid/metionin
-  sentezine olan talep de düşüyor. Yani Mars kısıtları yeni bir zayıf nokta
-  YARATMIYOR, tam tersine bazı "lüks" biyosentetik yolları gereksiz kılarak
-  esansiyel gen kümesini biraz **küçültüyor**.
-- Bu etki yalnızca hayatta kalma sınırına ÇOK yakın senaryolarda görünüyor:
-  daha rahat bir "hafif marj" (t*+0.05, büyüme ~%11.5 Dünya) noktasında
-  Dünya'yla TAMAMEN AYNI 171 esansiyel gen bulunmuştu, hiçbir fark yoktu.
-  Yani gen-esansiyellik manzarası sadece hayatta kalma eşiğinin hemen
-  dibinde evrensel çekirdek gen setinden ayrışmaya başlıyor.
+**DÜZELTME (2026-08-30, kullanıcının bilimsel doğruluk denetimi sırasında
+bulundu ve düzeltildi):** İlk çalıştırmada "3 gen (pabB, menC, menD) Mars'ta
+esansiyellikten çıkıyor" diye raporlanmıştı. Bu bulgu **yanlıştı** — solver'ın
+varsayılan feasibility tolerance'ından (1e-7) kaynaklanan bir **sayısal
+artefakttı**. "Sıkı marj" senaryolarında WT büyüme çok küçük olduğundan
+(~0.0027/saat), biyokütle denklemindeki menakinon (mql7_c) gibi kofaktörlerin
+gerektirdiği akı da çok küçük çıkıyordu (7.2×10⁻⁷ — solver toleransının
+sadece ~7 katı). Bu, gen silindiğinde LP çözücünün gerçekte imkânsız olan bir
+akıyı "toleransa sığıyor" diye feasible kabul etmesine yol açtı. Tolerance
+1e-9'a çekilince (kod artık bunu varsayılan yapıyor), **4 genin (pabB, menC,
+menD, folEA) dördü de Mars'ın üç senaryosunda da Dünya'daki gibi TAM
+ESANSİYEL** çıkıyor.
+
+**Düzeltilmiş bulgu**: Dünya benzeri referans ve Mars'ın test edilen üç
+senaryosunun (bakım×1.5/×2/×3, sınıra çok yakın "sıkı marj" noktası)
+**hepsinde tam olarak aynı 171 esansiyel gen** bulunuyor — hiçbir gen ne
+YENİ esansiyel oluyor ne de esansiyellikten çıkıyor. Daha önce test edilen
+daha rahat "hafif marj" (t*+0.05, büyüme ~%11.5 Dünya) noktasında da aynı
+sonuç (171=171) bulunmuştu. Yani **bu analizde test edilen Mars senaryoları,
+Dünya'ya kıyasla gen-esansiyellik manzarasını hiç değiştirmiyor** — model,
+hayatta kalabildiği her koşulda aynı ~171 genlik çekirdek genom setine
+ihtiyaç duyuyor.
+
+**Metodolojik ders**: Hayatta kalma sınırına çok yakın (WT büyüme ≲0.01/saat
+gibi) FBA senaryolarında gen silme/esansiyellik analizi yapılırken solver
+tolerance'ının biyokütle denklemindeki en küçük kofaktör katsayısına göre
+yeterince sıkı olduğu MUTLAKA doğrulanmalı; aksi halde sahte-feasible
+sonuçlar gerçek bir biyolojik bulgu gibi yorumlanabilir.
 
 ## Karşılaştırmalı genomik: DEG/stres-regulonu ile çapraz kontrol (`mars_deg_karsilastirma.py`)
 
@@ -196,17 +207,20 @@ kullanılacağı elle sorulmak yerine literatür taraması yapılarak bulundu.
 
 - **PerR regulonu** (oksidatif stres): [Fuangthong ve ark. 2002, J Bacteriol](https://pubmed.ncbi.nlm.nih.gov/12029044/).
   Ayrıca [PROTECT/EXPOSE-E deneyi](https://pubmed.ncbi.nlm.nih.gov/22680693/)
-  (Moeller ve ark. 2012) — *B. subtilis* sporları 559 gün gerçek uzay VE
+  (Nicholson ve ark. 2012) — *B. subtilis* sporları 559 gün gerçek uzay VE
   simüle Mars koşullarına maruz bırakıldı, PerR regulonu (oksidatif stres),
   SOS regulonu (DNA hasarı), CtsR/Clp sistemi (protein hasarı) ve SigV
   regulonu (hücre zarfı stresi) Mars-simule koşullarda indüklenmiş bulundu.
 - **SigV regulonu** (hücre zarfı/lizozim direnci): [Guariglia-Oropeza & Helmann 2011, J Bacteriol](https://pubmed.ncbi.nlm.nih.gov/21926231/).
 - **ResD-ResE regulonu** (O₂ kısıtlaması, anaerobik solunum/fermantasyon):
   Nakano laboratuvarının klasik çalışmaları.
-- **ISS uçuş deneyi (BRIC-21/BRIC-23)**: [Nickerson lab, npj Microgravity 2019](https://pmc.ncbi.nlm.nih.gov/articles/PMC6323116/) —
-  iki ayrı ISS misyonunda TUTARLI bulunan 91 DEG'den O₂ kısıtlamasıyla
-  ilişkili olanlar (yer kontrolünde/O₂-zengin ortamda indüklenen
-  anaerobik/fermantasyon genleri: narGHJK, nasBCDE, cydAB, ldh, lctP, bdhA).
+- **ISS uçuş deneyi (BRIC-21/BRIC-23)**: [Morrison, Fajardo-Cavazos & Nicholson 2019, npj Microgravity](https://pmc.ncbi.nlm.nih.gov/articles/PMC6323116/) —
+  iki ayrı ISS misyonunda TUTARLI bulunan 91 DEG'in (55'i uçuşta, 36'sı yer
+  kontrolünde yüksek) 36'sı yer kontrolünde (O₂-zengin ortamda) daha
+  yüksekti; bunlar arasında *narGHJI* operonu (nitrat redüktaz), *nasDE*
+  operonu (nitrit redüktaz), *narK-fnr* operonu, *cydC/cydD*, *ldh-lctP*
+  (laktat fermantasyonu) ve *bdhA* (2,3-bütandiol fermantasyonu) açıkça
+  belirtiliyor (makale metninden birebir doğrulandı).
 
 **Önemli kapsam sınırı**: iYO844 SADECE metabolik (enzim kodlayan) genleri
 içeriyor — PerR, Fur, ResD, ResE, LexA, RecA, CtsR, SigV gibi düzenleyici
@@ -215,23 +229,41 @@ katalizlemedikleri için). 68 aday gen isminden sadece 29'u modelde bulundu;
 geri kalanı GEM'in kapsamı dışında — bu beklenen ve dürüstçe belgelenmesi
 gereken bir sınırlama.
 
-**Bulgu**: `mars_gen_silme.py`'nin bulduğu 3 genin (pabB, menC, menD) rastgele
-olmadığı, gerçek O₂-kısıtlaması biyolojisiyle tutarlı bir yerde durduğu
-görüldü: menC/menD **birincil** solunum zinciri kofaktörü (menakinon)
-biyosentezinde — Mars'ta O₂ zaten o kadar kısıtlı ki bu yol darboğaz
-olmaktan çıkıyor. Buna karşılık, gerçek B. subtilis biyolojisinde bilinen
-**alternatif/yedek** O₂-kısıtlaması yolları (cydAB, nasBCDEF, narGHJK,
-fermantasyon genleri ldh/lctP/bdhA) modelin **hiçbir senaryosunda** esansiyel
-çıkmıyor — bu, "yedek yol" oldukları için esansiyel olmamaları gerektiği
-bilgisiyle tam tutarlı, modelin güvenilirliği için iyi bir sağlama. SigV
-(hücre zarfı) genleri (dltABCD) ortamdan bağımsız her koşulda esansiyel —
-genel zarf bütünlüğü için beklenen bir sonuç.
+**DÜZELTME (2026-08-30)**: Bu bölüm başlangıçta, sonradan sayısal artefakt
+olduğu anlaşılan "pabB/menC/menD Mars'ta esansiyellikten çıkıyor" bulgusuna
+dayanan bir biyolojik yorum içeriyordu (menakinon yolunun O₂ kısıtlaması
+altında "darboğaz olmaktan çıktığı" iddiası). O bulgu düzeltildi (bkz.
+yukarıdaki "Tekli gen silme bulguları") ve bu yorum artık geçerli değil —
+gerçek akı verisi kontrol edildiğinde WT'nin menC silinse de silinmese de
+**aynı miktarda O₂ kullandığı** görüldü, yani "O₂ kısıtlı olduğu için yol
+kullanılmıyor" açıklaması zaten akı verisiyle tutarsızdı; sorun sayısal
+toleranstı.
 
-**Dikkat**: `folEA`'nın esansiyellik durumu hayatta kalma sınırına ÇOK yakın
-noktalarda ondalık düzeyde hassas/kararsız çıktı (bir testte kayboluyor, bir
-diğerinde kaybolmuyor) — bu, sınıra bu kadar yakın çalışmanın doğal bir
-numerik kırılganlığı, menC/menD/pabB'nin üç bağımsız bakım-çarpanı
-senaryosunda TUTARLI kaybolması kadar güvenilir değil.
+**Güncel durum**: Düzeltilmiş gen silme sonuçlarına göre, aşağıdaki 29 genin
+hiçbiri Dünya ile Mars senaryoları arasında esansiyellik durumunu
+değiştirmiyor (`results/deg_karsilastirma.csv`). Bilinen **alternatif/yedek**
+O₂-kısıtlaması yolları (cydAB, nasBCDEF, narGHJ+narK, fermantasyon genleri
+ldh/lctP/bdhA) test edilen hiçbir senaryoda esansiyel değil — "yedek yol"
+olmalarıyla tutarlı. `menC`/`menD` (menakinon biyosentezi) ve `pabB`/`folEA`
+(folat) test edilen HER senaryoda (Dünya dahil) esansiyel — bu genler zaten
+genel olarak temel/çekirdek genom setinin bir parçası, Mars'a özgü değil.
+SigV (hücre zarfı) genleri (dltABCD) de ortamdan bağımsız her koşulda
+esansiyel. Bu karşılaştırmanın kendisi (metodoloji ve kaynak listesi) hâlâ
+geçerli ve kullanılabilir; sadece üzerine kurulan ilk yorum yanlıştı.
+
+**Ayrıca bulunan bir model sınırlaması**: `dltABCD`'nin modelde HER koşulda
+esansiyel çıkması, gerçek biyolojiyle **çelişiyor** —
+[Guariglia-Oropeza & Helmann 2011](https://pubmed.ncbi.nlm.nih.gov/21926231/)
+dahil literatür, gerçek *B. subtilis* Δ*dltABCDE* mutantlarının canlı ve
+üreyebilir olduğunu, sadece lizozime biraz daha duyarlı hale geldiğini
+gösteriyor (ölümcül değil). Nedeni incelendi: iYO844'te teikoik asit/lipoteikoik
+asit üretimi (`TECA2S45`, `LIPO3S24_BS` reaksiyonları) SADECE D-alanin ile
+sübstitüe edilmiş formu üretiyor ve biyokütle denklemi bu formu talep ediyor
+— modelde sübstitüe EDİLMEMİŞ (düz) teikoik asit üreten alternatif bir
+reaksiyon yok. Gerçekte bakteri bu süslemeyi olmadan da büyüyebiliyor; model
+bu esnekliği temsil etmiyor. Bu, iYO844'ün bilinen bir eksikliği olarak
+makalenin Sınırlamalar bölümünde belirtilmeli — `dltABCD`'yi "esansiyel
+çekirdek genom" örneği olarak kullanmak yanıltıcı olur.
 
 Çıktı: `results/deg_karsilastirma.csv`.
 
@@ -243,11 +275,13 @@ senaryosunda TUTARLI kaybolması kadar güvenilir değil.
 - [x] Kısıt şiddeti kalibrasyonu — ilk feasible Mars senaryosu bulundu
 - [x] Literatür taraması — kısıt değerlerinin gerekçelendirilebilirlik sınırları belgelendi
 - [x] Sistematik duyarlılık analizi + sonuç grafiği (`mars_duyarlilik.py`)
-- [x] Tekli gen silme (single gene deletion) analizi — ilk bulgu: yeni esansiyel
-      gen yok, 3 gen (pabB, menC, menD) esansiyellikten çıkıyor (bkz. yukarı)
+- [x] Tekli gen silme (single gene deletion) analizi — düzeltilmiş bulgu:
+      test edilen Mars senaryolarında Dünya'ya göre hiçbir gen esansiyellik
+      durumunu değiştirmiyor (bkz. yukarıdaki DÜZELTME notu — ilk rapor
+      edilen "3 gen esansiyellikten çıkıyor" bulgusu sayısal artefakttı)
 - [x] Karşılaştırmalı genomik (DEG, stres-toleransı gen listeleri) entegrasyonu
-      — literatürden 4 kaynaklı regulon listesi derlendi, FBA bulgusuyla
-      tutarlı bir biyolojik yorum bulundu (bkz. yukarı)
+      — literatürden 4 kaynaklı regulon listesi derlendi ve doğrulandı;
+      düzeltilmiş gen silme sonuçlarıyla çapraz kontrol edildi
 - [ ] Tam metin yazımı
 
 Ayrıntılı 14 günlük yol haritası ve kaynak linkleri için: proje sohbetindeki

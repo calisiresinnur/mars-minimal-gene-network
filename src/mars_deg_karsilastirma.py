@@ -6,7 +6,7 @@ VERİ KAYNAĞI (literatür taraması, 2026-08-30):
 data/stres_regulon_genleri.csv dosyasındaki gen listesi 4 gerçek kaynaktan
 derlendi:
   - PerR regulonu (oksidatif stres): Fuangthong ve ark. 2002, J Bacteriol
-    (PMID 12029044). PROTECT/EXPOSE-E deneyinde (Moeller ve ark. 2012,
+    (PMID 12029044). PROTECT/EXPOSE-E deneyinde (Nicholson ve ark. 2012,
     B. subtilis sporları 559 gün gerçek uzay + simüle Mars koşullarına
     maruz bırakıldı) PerR regulonu Mars-simule koşullarda indüklenmiş bulundu.
   - SigV regulonu (hücre zarfı/lizozim direnci): Guariglia-Oropeza & Helmann
@@ -14,7 +14,7 @@ derlendi:
   - ResD-ResE regulonu (O2 kısıtlaması, anaerobik solunum/fermantasyon):
     Nakano laboratuvarının klasik çalışmaları (resABCDE, cydABCD, nasBCDEF,
     fnr vb.).
-  - ISS uçuş deneyi (BRIC-21/BRIC-23): Nickerson lab, npj Microgravity 2019
+  - ISS uçuş deneyi (BRIC-21/BRIC-23): Morrison, Fajardo-Cavazos & Nicholson 2019, npj Microgravity
     (PMC6323116) -- iki ayrı ISS misyonunda TUTARLI bulunan 91 DEG'den O2
     kısıtlamasıyla ilişkili olanlar (yer kontrolünde/O2-zengin ortamda
     indüklenen anaerobik/fermantasyon genleri).
@@ -26,15 +26,16 @@ YOK çünkü bunlar doğrudan bir metabolik reaksiyon katalizlemiyor. Bu, GEM'in
 kapsamının doğal bir sınırı -- 68 aday gen isminden sadece 29'u modelde
 bulundu (bkz. data/stres_regulon_genleri.csv'nin nasıl derlendiği).
 
-BULGU: Aşağıdaki cross-reference, mars_gen_silme.py'nin bulduğu 3 genin
-(pabB, menC, menD) rastgele değil, gerçek O2-kısıtlaması biyolojisiyle
-tutarlı bir yerde durduğunu gösteriyor: menC/menD PRİMER solunum zinciri
-kofaktörü (menakinon) biyosentezinde -- Mars'ta O2 zaten o kadar kısıtlı ki
-bu yol darboğaz değil. Buna karşılık, gerçek B. subtilis biyolojisinde
-BİLİNEN alternatif/yedek O2-kısıtlaması yolları (cydAB, nasBCDEF, narGHJK,
-fermantasyon genleri ldh/lctP/bdhA) modelin HİÇBİR senaryosunda esansiyel
-çıkmıyor -- beklenen ve tutarlı bir sonuç, çünkü "alternatif/yedek yol"
-olmaları zaten esansiyel olmamaları gerektiği anlamına geliyor.
+DÜZELTME (2026-08-30): mars_gen_silme.py'nin ilk sürümü "pabB/menC/menD
+Mars'ta esansiyellikten çıkıyor" diye rapor etmişti; bu, solver'ın gevşek
+feasibility tolerance'ından (1e-7) kaynaklanan bir sayısal artefakttı --
+düzeltildi (bkz. mars_gen_silme.py'deki KRİTİK DÜZELTME notu). Düzeltilmiş
+sonuçlara göre bu 29 genin HİÇBİRİ Dünya/Mars arasında esansiyellik
+durumunu değiştirmiyor. Bilinen alternatif/yedek O2-kısıtlaması yolları
+(cydAB, nasBCDEF, narGHJ+narK, fermantasyon genleri ldh/lctP/bdhA) test
+edilen hiçbir senaryoda esansiyel değil -- "yedek yol" olmalarıyla tutarlı.
+menC/menD/pabB/folEA ise Dünya dahil HER senaryoda esansiyel (Mars'a özgü
+değil, zaten çekirdek genomun parçası).
 
 Çıktı: results/deg_karsilastirma.csv
 """

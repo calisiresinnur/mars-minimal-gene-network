@@ -10,8 +10,8 @@ iddia etmek yerine bilinçli olarak bundan vazgeçtik. Sebep:
      inceleyen güncel bir derleme (Noirungsee ve ark. 2024, Environ Microbiol
      Reports, PMC10866088) bile "radyasyon etkileri analize dahil edilebilir"
      diyor ama somut bir sayısal yöntem önermiyor.
-  2. Gerçek Mars atmosfer yüzdelerini (Newcombe ve ark. 2019/2019 Mars
-     simülasyon çalışması, PMC6399134: %95.54 CO2, %0.13 O2, %0.03 H2O,
+  2. Gerçek Mars atmosfer yüzdelerini (Cortesão ve ark. 2019, Front Microbiol,
+     PMC6399134: %95.54 CO2, %0.13 O2, %0.03 H2O,
      toplam basın 0.69 kPa) doğrudan bir FBA akı sınırına (mmol/gDW/h)
      çevirecek kinetik/taşınım (mass-transfer) verisi mevcut değil -- FBA bir
      sabit-akı-sınırı formalizmi, kısmi basınç oranını orantılı bir akı

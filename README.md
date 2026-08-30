@@ -23,10 +23,14 @@ BiGG/BioModels üzerinden hazır ve kürasyonu yapılmış).
 ├── .gitignore
 ├── data/
 │   └── models/
-│       └── iYO844.xml.gz     # Yerel model önbelleği (bkz. "Model kaynağı")
+│       └── iYO844.xml.gz          # Yerel model önbelleği (bkz. "Model kaynağı")
+├── results/
+│   ├── duyarlilik_sonuclari.csv   # mars_duyarlilik.py çıktısı (357 senaryo)
+│   └── buyume_vs_siddet.png       # Büyüme oranı / kısıt şiddeti grafiği
 └── src/
     ├── mars_fba.py           # Model yükleme + Mars kısıtları + FBA (ana script)
-    └── mars_kalibrasyon.py   # Kısıt şiddeti kalibrasyonu (kademeli senaryo taraması)
+    ├── mars_kalibrasyon.py   # İlk elle-seçilmiş senaryolarla hızlı doğruluk kontrolü
+    └── mars_duyarlilik.py    # Sistematik duyarlılık analizi + grafik/CSV çıktısı
 ```
 
 ## Kurulum ve çalıştırma
@@ -39,6 +43,7 @@ venv\Scripts\activate
 pip install -r requirements.txt
 python src/mars_fba.py
 python src/mars_kalibrasyon.py
+python src/mars_duyarlilik.py
 ```
 
 PowerShell "çalıştırma politikası" hatası verirse (venv aktive olmuyorsa), önce şunu
@@ -90,20 +95,69 @@ Bu önbellekleme iki ayrı ortam sorununu aştığı için gerekli:
   infeasible çıkmasının asıl (ve tek taranmamış) nedeniydi.
 - Eşikler ayrı ayrı bulunsa da kısıtlar **etkileşimli**: tek başına feasible
   olan eşik değerleri bir arada uygulandığında (ör. O₂=-2, glikoz=-0.5,
-  su=±2, bakım×1.5) yine infeasible çıkabiliyor. `mars_kalibrasyon.py`
-  içindeki 8. senaryo (O₂=-5, glikoz=-1.0, su=±8, bakım×2) şu an ilk feasible
-  "orta şiddette Mars senaryosu" (büyüme≈0.0189 /saat).
+  su=±2, bakım×1.5) yine infeasible çıkabiliyor.
+
+## Kaynaklar (literatür taraması, 2026-08-30)
+
+Kısıt değerlerini gerekçelendirmek için yapılan taramanın bulguları:
+
+- **Gerçek Mars atmosfer bileşimi**: %95.54 CO₂, %0.13 O₂, %0.03 H₂O buharı,
+  toplam basınç 0.69 kPa — ölçülmüş değerler.
+  [Bacillus subtilis Spore Resistance to Simulated Mars Surface Conditions](https://pmc.ncbi.nlm.nih.gov/articles/PMC6399134/)
+  (*Frontiers in Microbiology*, PMC6399134). Aynı çalışmadan: UV'den korunan
+  sporlarda canlılık ~%73 korunmuş, UV dahil edildiğinde (8 saatte 115 kJ/m²
+  UV-C) ~%6.6'ya düşmüş — Mars'ta asıl öldürücü faktörün kozmik radyasyondan
+  çok **UV** olduğuna işaret ediyor.
+- **Kozmik (iyonlaştırıcı) radyasyon dozu**: NASA Curiosity/MSL-RAD ölçümleri,
+  yüzeyde günlük ~0.64-0.67 mSv, yıllık ~150-250 mSv (Dünya arka planının,
+  ~2-3 mSv/yıl, üstünde ama kronik bir doz — akut hücre ölümüne yol açacak
+  düzeyde değil).
+- **NGAM/ATPM referans değerleri**: BioNumbers'ta tür-spesifik "normal" bakım
+  enerjisi değerleri var (ör. *Geobacter metallireducens* ~0.81 mmol
+  ATP/gDW/h) ama radyasyon altında bu değerin nasıl arttığına dair
+  sayısallaştırılmış bir kaynak **yok**.
+- **Sonuç**: [Genome-scale metabolic modelling of extremophiles and its applications in astrobiological environments](https://pmc.ncbi.nlm.nih.gov/articles/PMC10866088/)
+  (Noirungsee ve ark. 2024, *Environ Microbiol Reports*) gibi güncel bir
+  derleme bile "radyasyon etkileri analize dahil edilebilir" diyor ama somut
+  bir sayısal dönüştürme yöntemi önermiyor — yani **radyasyon → ATP bakım
+  maliyeti çarpanı için literatürde gerekçelendirilebilir tek bir sayı yok.**
+  Bu, alanın kendisinin henüz kapatmadığı bir boşluk.
+
+**Metodolojik karar (bu boşluk nedeniyle):** Tek bir "kanonik" Mars senaryosu
+iddia etmek yerine kısıt şiddeti bir **duyarlılık analizi (sensitivity
+analysis)** olarak ele alınıyor — bkz. `mars_duyarlilik.py` ve aşağıdaki
+grafik. O₂/CO₂/su yüzdeleri yukarıdaki ölçümlerle *niteliksel* olarak
+gerekçelendirilebilir (Mars'ta bunlar gerçekten çok kısıtlı) ama bu
+yüzdeleri doğrudan bir FBA akı sınırına (mmol/gDW/h) çevirecek bir
+kinetik/taşınım modeli yok — böyle bir dönüşüm yapmak sahte bir kesinlik
+iddiası olurdu. Bakım çarpanı için de aynı durum geçerli. Bu yüzden her ikisi
+de makalede **taranan parametreler** olarak sunulmalı, tek bir "doğru" değer
+olarak değil.
+
+## Duyarlılık analizi (`mars_duyarlilik.py`)
+
+O₂, glikoz ve su kısıtları ortak bir şiddet ekseninde (`t`: 0 = en sert ilk
+varsayım, 1 = ılımlı bir uç) birlikte taranıyor; bu, 7 farklı bakım
+çarpanı (×1.0 – ×4.0) için tekrarlanıyor (357 senaryo, `results/duyarlilik_sonuclari.csv`).
+
+![Büyüme oranı / kısıt şiddeti](results/buyume_vs_siddet.png)
+
+Gözlem: her bakım çarpanı için belirli bir şiddet eşiğine kadar model
+**tamamen infeasible** (bir uçurum), eşiğin hemen ötesinde büyüme oranı
+şiddetle yaklaşık doğrusal artıyor. Bakım çarpanı arttıkça hem eşik sağa
+kayıyor (hayatta kalmak için daha fazla kaynak gerekiyor) hem de aynı şiddet
+seviyesindeki maksimum büyüme oranı düşüyor — beklenen, tutarlı bir davranış.
 
 ## Durum
 
 - [x] Referans (Dünya benzeri) büyüme doğrulandı — 0.118 /saat
 - [x] Mars kısıtları tanımlandı (O₂, CO₂, organik karbon, su, bakım enerjisi)
 - [x] Model yükleme ortam hataları giderildi (BiGG yönlendirme + Windows Unicode yol sorunu)
-- [x] Kısıt şiddeti kalibrasyonu — ilk feasible Mars senaryosu bulundu (bkz. yukarı)
-- [ ] Nihai "kanonik" Mars senaryosu değerlerinin bilimsel gerekçeyle sabitlenmesi
+- [x] Kısıt şiddeti kalibrasyonu — ilk feasible Mars senaryosu bulundu
+- [x] Literatür taraması — kısıt değerlerinin gerekçelendirilebilirlik sınırları belgelendi
+- [x] Sistematik duyarlılık analizi + sonuç grafiği (`mars_duyarlilik.py`)
 - [ ] Tekli gen silme (single gene deletion) analizi
 - [ ] Karşılaştırmalı genomik (DEG, stres-toleransı gen listeleri) entegrasyonu
-- [ ] Sonuç şekilleri ve tablolar
 - [ ] Tam metin yazımı
 
 Ayrıntılı 14 günlük yol haritası ve kaynak linkleri için: proje sohbetindeki

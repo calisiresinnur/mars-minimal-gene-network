@@ -89,7 +89,9 @@ def bakim_reaksiyonunu_bul(model):
     return atpm
 
 
-def mars_kisitlarini_uygula(model, atpm, o2_lb=-0.5, glc_lb=-0.05, h2o_cap=1.0, bakim_carpani=3):
+def mars_kisitlarini_uygula(
+    model, atpm, o2_lb=-0.5, glc_lb=-0.05, h2o_cap=1.0, bakim_carpani=3, bakim_taban=None, sessiz=False
+):
     # O2: Mars atmosferinin sadece ~%0.17'si O2 + toplam basınç Dünya'nın ~%0.6'sı -> ciddi kısıtla
     model.reactions.EX_o2_e.lower_bound = o2_lb
 
@@ -108,10 +110,22 @@ def mars_kisitlarini_uygula(model, atpm, o2_lb=-0.5, glc_lb=-0.05, h2o_cap=1.0, 
     model.reactions.EX_h2o_e.bounds = (-h2o_cap, h2o_cap)
 
     # Bakım enerjisi: ATPM sabit bir değer (alt=üst) olduğu için iki sınırı BİRLİKTE değiştiriyoruz
-    # radyasyon hasarını onarmak ek ATP gerektirir -> varsayılan olarak "bakim_carpani" kat artır
-    yeni_bakim = atpm.lower_bound * bakim_carpani
+    # radyasyon hasarını onarmak ek ATP gerektirir -> varsayılan olarak "bakim_carpani" kat artır.
+    #
+    # DİKKAT (gerçek bir üretim hatasından öğrenildi): çarpanı ATPM'nin O ANKİ
+    # lower_bound'una uygularsak, aynı model/atpm nesnesi birden çok kez (ör. bir
+    # tarama döngüsünde) bu fonksiyondan geçirildiğinde değer her seferinde
+    # katlanarak büyür (9 -> 13.5 -> 20.25 -> ... sonsuza). Bunu önlemek için
+    # taban değeri HER ZAMAN açıkça bilinen bir referanstan alıyoruz: çağıran
+    # "bakim_taban" vermezse, atpm.lower_bound'u SADECE bu fonksiyon hiç
+    # çağrılmamışsa (yani hâlâ modelin orijinal değeriyse) taban olarak kabul
+    # ediyoruz -- modeli tekrar kullanan çağıranlar (ör. mars_duyarlilik.py)
+    # bakim_taban'ı MUTLAKA açıkça vermeli.
+    taban = bakim_taban if bakim_taban is not None else atpm.lower_bound
+    yeni_bakim = taban * bakim_carpani
     atpm.bounds = (yeni_bakim, yeni_bakim)
-    print(f"Yeni bakım gereksinimi: {atpm.bounds}")
+    if not sessiz:
+        print(f"Yeni bakım gereksinimi: {atpm.bounds}")
 
     return model
 

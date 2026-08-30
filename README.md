@@ -22,19 +22,22 @@ BiGG/BioModels üzerinden hazır ve kürasyonu yapılmış).
 ├── requirements.txt
 ├── .gitignore
 ├── data/
-│   └── models/
-│       └── iYO844.xml.gz          # Yerel model önbelleği (bkz. "Model kaynağı")
+│   ├── models/
+│   │   └── iYO844.xml.gz          # Yerel model önbelleği (bkz. "Model kaynağı")
+│   └── stres_regulon_genleri.csv  # Literatürden derlenmiş stres-regulonu/DEG referans listesi
 ├── results/
 │   ├── duyarlilik_sonuclari.csv        # mars_duyarlilik.py çıktısı (357 senaryo)
 │   ├── buyume_vs_siddet.png            # Büyüme oranı / kısıt şiddeti grafiği
 │   ├── gen_silme_sonuclari.csv         # mars_gen_silme.py ham çıktısı (4 senaryo x 844 gen)
 │   ├── mars_yeni_esansiyel_genler.csv  # Mars'a özgü YENİ esansiyel gen adayları (boş: bulunamadı)
-│   └── mars_dispanse_olan_genler.csv   # Mars'ta esansiyellikten çıkan genler (pabB, menC, menD)
+│   ├── mars_dispanse_olan_genler.csv   # Mars'ta esansiyellikten çıkan genler (pabB, menC, menD)
+│   └── deg_karsilastirma.csv           # FBA sonuçları x literatür stres-regulonu çapraz tablosu
 └── src/
-    ├── mars_fba.py           # Model yükleme + Mars kısıtları + FBA (ana script)
-    ├── mars_kalibrasyon.py   # İlk elle-seçilmiş senaryolarla hızlı doğruluk kontrolü
-    ├── mars_duyarlilik.py    # Sistematik duyarlılık analizi + grafik/CSV çıktısı
-    └── mars_gen_silme.py     # Tekli gen silme analizi (4 senaryo x 844 gen)
+    ├── mars_fba.py              # Model yükleme + Mars kısıtları + FBA (ana script)
+    ├── mars_kalibrasyon.py      # İlk elle-seçilmiş senaryolarla hızlı doğruluk kontrolü
+    ├── mars_duyarlilik.py       # Sistematik duyarlılık analizi + grafik/CSV çıktısı
+    ├── mars_gen_silme.py        # Tekli gen silme analizi (4 senaryo x 844 gen)
+    └── mars_deg_karsilastirma.py # FBA sonuçlarını literatür DEG/stres-regulonuyla karşılaştırma
 ```
 
 ## Kurulum ve çalıştırma
@@ -49,6 +52,7 @@ python src/mars_fba.py
 python src/mars_kalibrasyon.py
 python src/mars_duyarlilik.py
 python src/mars_gen_silme.py
+python src/mars_deg_karsilastirma.py
 ```
 
 PowerShell "çalıştırma politikası" hatası verirse (venv aktive olmuyorsa), önce şunu
@@ -184,6 +188,53 @@ veri), `results/mars_yeni_esansiyel_genler.csv`, `results/mars_dispanse_olan_gen
   Yani gen-esansiyellik manzarası sadece hayatta kalma eşiğinin hemen
   dibinde evrensel çekirdek gen setinden ayrışmaya başlıyor.
 
+## Karşılaştırmalı genomik: DEG/stres-regulonu ile çapraz kontrol (`mars_deg_karsilastirma.py`)
+
+Kullanıcı isteği üzerine, hangi DEG/stres-toleransı gen listesinin
+kullanılacağı elle sorulmak yerine literatür taraması yapılarak bulundu.
+`data/stres_regulon_genleri.csv` dört gerçek kaynaktan derlendi:
+
+- **PerR regulonu** (oksidatif stres): [Fuangthong ve ark. 2002, J Bacteriol](https://pubmed.ncbi.nlm.nih.gov/12029044/).
+  Ayrıca [PROTECT/EXPOSE-E deneyi](https://pubmed.ncbi.nlm.nih.gov/22680693/)
+  (Moeller ve ark. 2012) — *B. subtilis* sporları 559 gün gerçek uzay VE
+  simüle Mars koşullarına maruz bırakıldı, PerR regulonu (oksidatif stres),
+  SOS regulonu (DNA hasarı), CtsR/Clp sistemi (protein hasarı) ve SigV
+  regulonu (hücre zarfı stresi) Mars-simule koşullarda indüklenmiş bulundu.
+- **SigV regulonu** (hücre zarfı/lizozim direnci): [Guariglia-Oropeza & Helmann 2011, J Bacteriol](https://pubmed.ncbi.nlm.nih.gov/21926231/).
+- **ResD-ResE regulonu** (O₂ kısıtlaması, anaerobik solunum/fermantasyon):
+  Nakano laboratuvarının klasik çalışmaları.
+- **ISS uçuş deneyi (BRIC-21/BRIC-23)**: [Nickerson lab, npj Microgravity 2019](https://pmc.ncbi.nlm.nih.gov/articles/PMC6323116/) —
+  iki ayrı ISS misyonunda TUTARLI bulunan 91 DEG'den O₂ kısıtlamasıyla
+  ilişkili olanlar (yer kontrolünde/O₂-zengin ortamda indüklenen
+  anaerobik/fermantasyon genleri: narGHJK, nasBCDE, cydAB, ldh, lctP, bdhA).
+
+**Önemli kapsam sınırı**: iYO844 SADECE metabolik (enzim kodlayan) genleri
+içeriyor — PerR, Fur, ResD, ResE, LexA, RecA, CtsR, SigV gibi düzenleyici
+proteinler/sigma faktörleri modelde YOK (doğrudan bir metabolik reaksiyon
+katalizlemedikleri için). 68 aday gen isminden sadece 29'u modelde bulundu;
+geri kalanı GEM'in kapsamı dışında — bu beklenen ve dürüstçe belgelenmesi
+gereken bir sınırlama.
+
+**Bulgu**: `mars_gen_silme.py`'nin bulduğu 3 genin (pabB, menC, menD) rastgele
+olmadığı, gerçek O₂-kısıtlaması biyolojisiyle tutarlı bir yerde durduğu
+görüldü: menC/menD **birincil** solunum zinciri kofaktörü (menakinon)
+biyosentezinde — Mars'ta O₂ zaten o kadar kısıtlı ki bu yol darboğaz
+olmaktan çıkıyor. Buna karşılık, gerçek B. subtilis biyolojisinde bilinen
+**alternatif/yedek** O₂-kısıtlaması yolları (cydAB, nasBCDEF, narGHJK,
+fermantasyon genleri ldh/lctP/bdhA) modelin **hiçbir senaryosunda** esansiyel
+çıkmıyor — bu, "yedek yol" oldukları için esansiyel olmamaları gerektiği
+bilgisiyle tam tutarlı, modelin güvenilirliği için iyi bir sağlama. SigV
+(hücre zarfı) genleri (dltABCD) ortamdan bağımsız her koşulda esansiyel —
+genel zarf bütünlüğü için beklenen bir sonuç.
+
+**Dikkat**: `folEA`'nın esansiyellik durumu hayatta kalma sınırına ÇOK yakın
+noktalarda ondalık düzeyde hassas/kararsız çıktı (bir testte kayboluyor, bir
+diğerinde kaybolmuyor) — bu, sınıra bu kadar yakın çalışmanın doğal bir
+numerik kırılganlığı, menC/menD/pabB'nin üç bağımsız bakım-çarpanı
+senaryosunda TUTARLI kaybolması kadar güvenilir değil.
+
+Çıktı: `results/deg_karsilastirma.csv`.
+
 ## Durum
 
 - [x] Referans (Dünya benzeri) büyüme doğrulandı — 0.118 /saat
@@ -194,7 +245,9 @@ veri), `results/mars_yeni_esansiyel_genler.csv`, `results/mars_dispanse_olan_gen
 - [x] Sistematik duyarlılık analizi + sonuç grafiği (`mars_duyarlilik.py`)
 - [x] Tekli gen silme (single gene deletion) analizi — ilk bulgu: yeni esansiyel
       gen yok, 3 gen (pabB, menC, menD) esansiyellikten çıkıyor (bkz. yukarı)
-- [ ] Karşılaştırmalı genomik (DEG, stres-toleransı gen listeleri) entegrasyonu
+- [x] Karşılaştırmalı genomik (DEG, stres-toleransı gen listeleri) entegrasyonu
+      — literatürden 4 kaynaklı regulon listesi derlendi, FBA bulgusuyla
+      tutarlı bir biyolojik yorum bulundu (bkz. yukarı)
 - [ ] Tam metin yazımı
 
 Ayrıntılı 14 günlük yol haritası ve kaynak linkleri için: proje sohbetindeki

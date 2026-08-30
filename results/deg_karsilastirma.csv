@@ -1,0 +1,30 @@
+gen_id,isim,kategori,kaynak,Dunya_referans,Mars_bakim_x1.5_siki_marj,Mars_bakim_x2.0_siki_marj,Mars_bakim_x3.0_siki_marj
+BSU08820,katA,PerR (oksidatif stres),Fuangthong ve ark. 2002 J Bacteriol (PMID 12029044); PROTECT/EXPOSE-E deneyinde (Moeller ve ark. 2012) PerR regulonu Mars-simule kosullarda indüklenmis bulundu,False,False,False,False
+BSU13850,zosA,PerR (oksidatif stres),Fuangthong ve ark. 2002 J Bacteriol (PMID 12029044),False,False,False,False
+BSU28170,hemA,"PerR (oksidatif stres, hem biyosentezi)",Fuangthong ve ark. 2002 J Bacteriol (PMID 12029044) -- PerR regulonunun hem biyosentezi kolu,False,False,False,False
+BSU28150,hemC,"PerR (oksidatif stres, hem biyosentezi)",Fuangthong ve ark. 2002 J Bacteriol (PMID 12029044),False,False,False,False
+BSU28140,hemD,"PerR (oksidatif stres, hem biyosentezi)",Fuangthong ve ark. 2002 J Bacteriol (PMID 12029044),False,False,False,False
+BSU28130,hemB,"PerR (oksidatif stres, hem biyosentezi)",Fuangthong ve ark. 2002 J Bacteriol (PMID 12029044),False,False,False,False
+BSU28120,hemL,"PerR (oksidatif stres, hem biyosentezi)",Fuangthong ve ark. 2002 J Bacteriol (PMID 12029044),False,False,False,False
+BSU38500,dltA,SigV (hücre zarfı/lizozim direnci),Guariglia-Oropeza & Helmann 2011 J Bacteriol (PMID 21926231),True,True,True,True
+BSU38510,dltB,SigV (hücre zarfı/lizozim direnci),Guariglia-Oropeza & Helmann 2011 J Bacteriol (PMID 21926231),True,True,True,True
+BSU38520,dltC,SigV (hücre zarfı/lizozim direnci),Guariglia-Oropeza & Helmann 2011 J Bacteriol (PMID 21926231),True,True,True,True
+BSU38530,dltD,SigV (hücre zarfı/lizozim direnci),Guariglia-Oropeza & Helmann 2011 J Bacteriol (PMID 21926231),True,True,True,True
+BSU38760,cydA,ResDE (O2 kısıtlaması),"Nakano ve ark. çalışmaları (ResD-ResE regulonu); ISS uçuş deneyinde (Nickerson lab, npj Microgravity 2019, PMC6323116) O2 kısıtlaması altında indüklendi",False,False,False,False
+BSU38750,cydB,ResDE (O2 kısıtlaması),Nakano ve ark. çalışmaları; npj Microgravity 2019 (PMC6323116),False,False,False,False
+BSU03320,nasB,"ResDE (O2 kısıtlaması, nitrat asimilasyonu)",Nakano ve ark. çalışmaları (ResD-ResE regulonu),False,False,False,False
+BSU03310,nasC,"ResDE (O2 kısıtlaması, nitrat asimilasyonu)",Nakano ve ark. çalışmaları (ResD-ResE regulonu),False,False,False,False
+BSU03300,nasD,"ResDE (O2 kısıtlaması, nitrat asimilasyonu)",Nakano ve ark. çalışmaları; npj Microgravity 2019 (PMC6323116),False,False,False,False
+BSU03290,nasE,"ResDE (O2 kısıtlaması, nitrat asimilasyonu)",Nakano ve ark. çalışmaları; npj Microgravity 2019 (PMC6323116),False,False,False,False
+BSU03280,nasF,"ResDE (O2 kısıtlaması, nitrat asimilasyonu)",Nakano ve ark. çalışmaları (ResD-ResE regulonu),False,False,False,False
+BSU37280,narG,"ResDE (O2 kısıtlaması, anaerobik solunum)",Nakano ve ark. çalışmaları; npj Microgravity 2019 (PMC6323116),False,False,False,False
+BSU37270,narH,"ResDE (O2 kısıtlaması, anaerobik solunum)",Nakano ve ark. çalışmaları; npj Microgravity 2019 (PMC6323116),False,False,False,False
+BSU37260,narJ,"ResDE (O2 kısıtlaması, anaerobik solunum)",Nakano ve ark. çalışmaları; npj Microgravity 2019 (PMC6323116),False,False,False,False
+BSU37320,narK,"ResDE (O2 kısıtlaması, anaerobik solunum)",npj Microgravity 2019 (PMC6323116),False,False,False,False
+BSU03050,ldh,"ISS uçuş DEG (O2 kısıtlaması, fermantasyon)","Nickerson lab, npj Microgravity 2019 (PMC6323116) -- yer kontrolünde (O2 zengin) indüklenen 91 tutarlı DEG'den biri",False,False,False,False
+BSU03060,lctP,"ISS uçuş DEG (O2 kısıtlaması, fermantasyon)",npj Microgravity 2019 (PMC6323116),False,False,False,False
+BSU06240,bdhA,"ISS uçuş DEG (O2 kısıtlaması, fermantasyon)",npj Microgravity 2019 (PMC6323116),False,False,False,False
+BSU30780,menC,Solunum zinciri kofaktörü (menakinon biyosentezi),Bu projenin FBA bulgusu: Mars senaryolarında esansiyellikten çıkıyor (bkz. README > Tekli gen silme bulguları),True,False,False,False
+BSU30820,menD,Solunum zinciri kofaktörü (menakinon biyosentezi),Bu projenin FBA bulgusu: Mars senaryolarında esansiyellikten çıkıyor (bkz. README > Tekli gen silme bulguları),True,False,False,False
+BSU00740,pabB,Folat/tek-karbon metabolizması,Bu projenin FBA bulgusu: Mars senaryolarında esansiyellikten çıkıyor (bkz. README > Tekli gen silme bulguları),True,False,False,False
+BSU22780,folEA,Folat/tek-karbon metabolizması,Bu projenin FBA bulgusu -- sınıra çok yakın noktalarda kararsız/hassas (bkz. README notu),True,True,True,True

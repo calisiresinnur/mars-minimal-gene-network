@@ -25,12 +25,16 @@ BiGG/BioModels üzerinden hazır ve kürasyonu yapılmış).
 │   └── models/
 │       └── iYO844.xml.gz          # Yerel model önbelleği (bkz. "Model kaynağı")
 ├── results/
-│   ├── duyarlilik_sonuclari.csv   # mars_duyarlilik.py çıktısı (357 senaryo)
-│   └── buyume_vs_siddet.png       # Büyüme oranı / kısıt şiddeti grafiği
+│   ├── duyarlilik_sonuclari.csv        # mars_duyarlilik.py çıktısı (357 senaryo)
+│   ├── buyume_vs_siddet.png            # Büyüme oranı / kısıt şiddeti grafiği
+│   ├── gen_silme_sonuclari.csv         # mars_gen_silme.py ham çıktısı (4 senaryo x 844 gen)
+│   ├── mars_yeni_esansiyel_genler.csv  # Mars'a özgü YENİ esansiyel gen adayları (boş: bulunamadı)
+│   └── mars_dispanse_olan_genler.csv   # Mars'ta esansiyellikten çıkan genler (pabB, menC, menD)
 └── src/
     ├── mars_fba.py           # Model yükleme + Mars kısıtları + FBA (ana script)
     ├── mars_kalibrasyon.py   # İlk elle-seçilmiş senaryolarla hızlı doğruluk kontrolü
-    └── mars_duyarlilik.py    # Sistematik duyarlılık analizi + grafik/CSV çıktısı
+    ├── mars_duyarlilik.py    # Sistematik duyarlılık analizi + grafik/CSV çıktısı
+    └── mars_gen_silme.py     # Tekli gen silme analizi (4 senaryo x 844 gen)
 ```
 
 ## Kurulum ve çalıştırma
@@ -44,6 +48,7 @@ pip install -r requirements.txt
 python src/mars_fba.py
 python src/mars_kalibrasyon.py
 python src/mars_duyarlilik.py
+python src/mars_gen_silme.py
 ```
 
 PowerShell "çalıştırma politikası" hatası verirse (venv aktive olmuyorsa), önce şunu
@@ -148,6 +153,37 @@ Gözlem: her bakım çarpanı için belirli bir şiddet eşiğine kadar model
 kayıyor (hayatta kalmak için daha fazla kaynak gerekiyor) hem de aynı şiddet
 seviyesindeki maksimum büyüme oranı düşüyor — beklenen, tutarlı bir davranış.
 
+## Tekli gen silme bulguları (`mars_gen_silme.py`, ilk çalıştırma 2026-08-30)
+
+844 genin her biri tek tek silinip 4 senaryoda (Dünya benzeri referans + 3
+bakım çarpanının sınıra çok yakın "sıkı marj" noktası, t*+0.01) büyüme
+oranı yeniden hesaplandı. Sonuçlar: `results/gen_silme_sonuclari.csv` (ham
+veri), `results/mars_yeni_esansiyel_genler.csv`, `results/mars_dispanse_olan_genler.csv`.
+
+- Dünya benzeri referansta **171 esansiyel gen** / 844.
+- Üç Mars senaryosunun **üçünde de** (bakım çarpanından bağımsız, tutarlı):
+  **168 esansiyel gen** / 844.
+- Beklenen yönde (Mars'a özgü YENİ esansiyel gen) **hiçbir aday bulunamadı**.
+- Bunun yerine ters yönde bir etki bulundu: **3 gen Dünya'da esansiyelken
+  Mars'ın üç senaryosunda da esansiyel OLMAKTAN ÇIKIYOR**:
+  - `pabB` (BSU00740) — 4-amino-4-deoxychorismate synthase (folat/PABA biyosentezi)
+  - `menC` (BSU30780) — O-succinylbenzoate-CoA synthase (menakinon biyosentezi)
+  - `menD` (BSU30820) — 2-succinyl-6-hydroxy-2,4-cyclohexadiene-1-carboxylate synthase (menakinon biyosentezi)
+- **Yorum**: `menC`/`menD` menakinonun (solunum zinciri elektron taşıyıcısı)
+  biyosentezinde görev alıyor; O₂ ve karbon zaten Mars senaryosunda o kadar
+  kısıtlı ki, hücrenin darboğazı bu genlerin hizmet ettiği solunum-zinciri
+  kapasitesine hiç ulaşmıyor — pahalı bir biyosentez yolu artık "gerekli"
+  değil, "kullanılmıyor". `pabB` folat/tek-karbon metabolizmasına giriyor;
+  büyüme oranı zaten Mars'ta çok düşük olduğundan nükleotid/metionin
+  sentezine olan talep de düşüyor. Yani Mars kısıtları yeni bir zayıf nokta
+  YARATMIYOR, tam tersine bazı "lüks" biyosentetik yolları gereksiz kılarak
+  esansiyel gen kümesini biraz **küçültüyor**.
+- Bu etki yalnızca hayatta kalma sınırına ÇOK yakın senaryolarda görünüyor:
+  daha rahat bir "hafif marj" (t*+0.05, büyüme ~%11.5 Dünya) noktasında
+  Dünya'yla TAMAMEN AYNI 171 esansiyel gen bulunmuştu, hiçbir fark yoktu.
+  Yani gen-esansiyellik manzarası sadece hayatta kalma eşiğinin hemen
+  dibinde evrensel çekirdek gen setinden ayrışmaya başlıyor.
+
 ## Durum
 
 - [x] Referans (Dünya benzeri) büyüme doğrulandı — 0.118 /saat
@@ -156,7 +192,8 @@ seviyesindeki maksimum büyüme oranı düşüyor — beklenen, tutarlı bir dav
 - [x] Kısıt şiddeti kalibrasyonu — ilk feasible Mars senaryosu bulundu
 - [x] Literatür taraması — kısıt değerlerinin gerekçelendirilebilirlik sınırları belgelendi
 - [x] Sistematik duyarlılık analizi + sonuç grafiği (`mars_duyarlilik.py`)
-- [ ] Tekli gen silme (single gene deletion) analizi
+- [x] Tekli gen silme (single gene deletion) analizi — ilk bulgu: yeni esansiyel
+      gen yok, 3 gen (pabB, menC, menD) esansiyellikten çıkıyor (bkz. yukarı)
 - [ ] Karşılaştırmalı genomik (DEG, stres-toleransı gen listeleri) entegrasyonu
 - [ ] Tam metin yazımı
 

@@ -24,7 +24,8 @@ BiGG/BioModels üzerinden hazır ve kürasyonu yapılmış).
 ├── data/
 │   ├── models/
 │   │   └── iYO844.xml.gz          # Yerel model önbelleği (bkz. "Model kaynağı")
-│   └── stres_regulon_genleri.csv  # Literatürden derlenmiş stres-regulonu/DEG referans listesi
+│   ├── stres_regulon_genleri.csv  # Literatürden derlenmiş stres-regulonu/DEG referans listesi
+│   └── models/iMB631.xml.gz       # Salinibacter ruber modeli (bkz. Ekstremofil karşılaştırması)
 ├── results/
 │   ├── duyarlilik_sonuclari.csv        # mars_duyarlilik.py çıktısı (357 senaryo)
 │   ├── buyume_vs_siddet.png            # Büyüme oranı / kısıt şiddeti grafiği
@@ -37,7 +38,10 @@ BiGG/BioModels üzerinden hazır ve kürasyonu yapılmış).
     ├── mars_kalibrasyon.py      # İlk elle-seçilmiş senaryolarla hızlı doğruluk kontrolü
     ├── mars_duyarlilik.py       # Sistematik duyarlılık analizi + grafik/CSV çıktısı
     ├── mars_gen_silme.py        # Tekli gen silme analizi (4 senaryo x 844 gen)
-    └── mars_deg_karsilastirma.py # FBA sonuçlarını literatür DEG/stres-regulonuyla karşılaştırma
+    ├── mars_deg_karsilastirma.py # FBA sonuçlarını literatür DEG/stres-regulonuyla karşılaştırma
+    ├── extremofil_fba.py        # Salinibacter ruber (iMB631) için Mars FBA -- iYO844 analoğu
+    ├── extremofil_duyarlilik.py # Salinibacter için duyarlılık analizi
+    └── extremofil_gen_silme.py  # Salinibacter için tekli gen silme analizi
 ```
 
 ## Kurulum ve çalıştırma
@@ -53,6 +57,9 @@ python src/mars_kalibrasyon.py
 python src/mars_duyarlilik.py
 python src/mars_gen_silme.py
 python src/mars_deg_karsilastirma.py
+python src/extremofil_fba.py
+python src/extremofil_duyarlilik.py
+python src/extremofil_gen_silme.py
 ```
 
 PowerShell "çalıştırma politikası" hatası verirse (venv aktive olmuyorsa), önce şunu
@@ -267,6 +274,104 @@ makalenin Sınırlamalar bölümünde belirtilmeli — `dltABCD`'yi "esansiyel
 
 Çıktı: `results/deg_karsilastirma.csv`.
 
+## Ekstremofil karşılaştırması: Salinibacter ruber (iMB631)
+
+Kullanıcının sorusu üzerine: "Dünya'da yaşayan minimal gen seti Mars'ta da
+işe yarıyor" bulgusu B. subtilis'e (mezofilik, strese önceden adapte
+olmamış) özgü mü, yoksa gerçekten strese adapte bir ekstremofil de aynı
+davranışı mı gösteriyor? Bunu test etmek için **Salinibacter ruber**
+(iMB631) modelini ekledik — doygun tuzlu suda (%20-30 tuz) yaşayan, gerçek
+bir aşırı halofilik **bakteri** (arke değil, hücre biyolojisi B. subtilis'le
+daha karşılaştırılabilir) — yani Mars'ın "düşük su aktivitesi" eksenine
+doğal olarak adapte bir organizma.
+
+**Model kaynağı**: iMB631 (631 gen, 1459 reaksiyon), Ghosh & Mohapatra 2019,
+[A genome-scale metabolic network reconstruction of extremely halophilic bacterium Salinibacter ruber](https://ncbi.nlm.nih.gov/pmc/articles/PMC6508672)
+(*PLOS ONE*). SBML dosyası makalenin S2 ek dosyasından indirildi ve
+`data/models/iMB631.xml.gz` altında önbelleğe alındı.
+
+**Metodolojik farklar (iYO844 ile birebir karşılaştırılamayan noktalar)**:
+- iMB631 ModelSEED tarzı isimlendirme kullanıyor (`M_ex00027` gibi), BiGG
+  tarzı değil; exchange yönü de TERS (pozitif akı = alım, iYO844'te negatif).
+- iYO844 gerçek bir minimal ortamda (glikoz + inorganik tuzlar) büyüyebilen
+  bir **prototrof** modeli. iMB631 modelinde birden fazla amino asit/vitamin
+  dışarıdan verilmezse büyüme sıfır çıkıyor — tek bir eksik besinle
+  açıklanamıyor (muhtemelen gerçek çoklu oksotrofi ve/veya otomatik
+  ModelSEED rekonstrüksiyonunun tamamlanmamış boşlukları). Orijinal makale
+  de saf minimal ortam değil, pepton+maya özütü içeren zengin/tanımsız bir
+  ortam (MGM) kullanmış ve FBA için tam bir akı sınırı tablosu
+  yayınlamamış. Bu yüzden **REFERANS_ORTAM bizim seçtiğimiz, açıkça
+  belgelenmiş bir kalibrasyon**: glikoz=1.0, her amino asit/vitamin=0.1
+  mmol/gDW/h — bu, makalenin bildirdiği 0.297/saat referans büyümeye çok
+  yakın bir sonuç veriyor (**0.2676/saat**), rastgele seçilmedi.
+- Bu farklar nedeniyle mutlak sayılar (büyüme oranları, kısıt değerleri)
+  iki organizma arasında BİREBİR karşılaştırılamaz. Karşılaştırma **nispi**
+  olmalı: büyümenin kendi referansına göre yüzde kaçına düştüğü ve hangi
+  şiddette tamamen infeasible olunduğu.
+
+### Duyarlılık analizi sonucu — çarpıcı bir fark
+
+`extremofil_duyarlilik.py`, aynı "şiddet ekseni" (t: 0=çok sert, 1=model
+referansı) yöntemini 7 bakım çarpanı için (×1.0–×4.0) tekrarladı (357
+senaryo, `results/extremofil_duyarlilik_sonuclari.csv`,
+`results/extremofil_buyume_vs_siddet.png`).
+
+![Salinibacter duyarlılık](results/extremofil_buyume_vs_siddet.png)
+
+**B. subtilis ile tam tersi bir davranış**: test edilen aralığın **hiçbir
+noktasında infeasible olmuyor** — hatta çok daha sert noktalarda bile
+(bakım×20'ye, hatta O₂/glikoz/organik/su sıfıra çok yakın değerlere kadar
+tek tek doğrulandı, bkz. git geçmişindeki keşif adımları) feasible kalıyor.
+Büyüme oranı **tamamen doğrusal** ve **bakım çarpanından neredeyse
+bağımsız** (7 eğri grafikte üst üste biniyor) — B. subtilis'teki keskin
+"uçurum" (belli bir eşiğin altında tamamen infeasible) burada YOK. Bunun
+nedeni muhtemelen: bu organizmanın referans bakım gereksinimi (ATPM=3.15)
+mevcut kaynak bütçesine kıyasla görece küçük kalıyor — B. subtilis'te
+ATPM=9, bütçenin çok daha büyük ve kısıtlayıcı bir parçasıydı.
+
+**Önemli dürüstlük notu**: Bu farkın ne kadarı GERÇEK biyolojik dayanıklılığı
+(halofilin strese önceden adapte olması), ne kadarı iMB631'in daha az
+olgun/otomatik (ModelSEED tarzı) rekonstrüksiyon kalitesinden kaynaklanan
+YAPAY bir esneklik (eksik gap-filling nedeniyle ağın gerçekte olmayan
+"kolay" yollar içermesi) olduğunu bu analiz TEK BAŞINA ayıramıyor. İkisi de
+makul açıklamalar; kesin ayrım için iMB631'in bağımsız olarak deneysel
+verilerle doğrulanması gerekir — bu makalenin Sınırlamalar bölümünde
+belirtilmeli.
+
+### Gen silme sonucu
+
+`extremofil_gen_silme.py`, referans + 6 Mars senaryosunda (3 bakım
+çarpanı × 2 şiddet: "orta" ~%10 büyüme, "sert" ~%2 büyüme) 632 genin her
+birini tek tek sildi (`results/extremofil_gen_silme_sonuclari.csv`, baştan
+1e-9 solver tolerance ile -- B. subtilis'teki hatadan ders alındı).
+
+**Sonuç: 148 esansiyel gen / 632, 7 senaryonun (referans + 6 Mars) HEPSİNDE
+aynı** — hiçbir gen ne yeni esansiyel oluyor ne de esansiyellikten çıkıyor.
+
+### Karşılaştırmalı özet: B. subtilis (iYO844) vs Salinibacter ruber (iMB631)
+
+| | B. subtilis (iYO844) | Salinibacter ruber (iMB631) |
+|---|---|---|
+| Organizma tipi | Mezofilik, strese önceden adapte değil | Aşırı halofilik, düşük su aktivitesine doğal adapte |
+| Referans büyüme | 0.1180 /saat | 0.2676 /saat |
+| Şiddet arttıkça davranış | **Keskin uçurum** — eşiğin altında tamamen infeasible | **Düzgün doğrusal düşüş** — test edilen aralıkta hiç infeasible olmuyor |
+| Bakım çarpanının etkisi | Büyük — eşiği ve max büyümeyi belirgin değiştiriyor | Neredeyse yok — 7 eğri üst üste biniyor |
+| Esansiyel gen seti Mars'ta değişiyor mu | **Hayır** (düzeltilmiş bulgu) — 171=171 her koşulda | **Hayır** — 148=148 her koşulda |
+
+**Ortak sonuç**: Test edilen her iki modelde de Mars'a özgü kısıtlar
+(mevcut besinleri sıfıra indirmeden, sadece azaltarak modellendiğinde) gen
+esansiyellik setini değiştirmiyor. Bu, kullanıcının ilk sorduğu "Dünya'da
+yaşayan minimal gen seti Mars'ta da mı gerekli" sorusunun cevabının
+**organizma seçiminden bağımsız, metodolojinin kendisinden kaynaklanan bir
+özellik olabileceğine** işaret ediyor (bkz. yukarıdaki "Dünya kısıtları
+hiçbir besini tamamen yok etmiyor, sadece azaltıyor" mantığı) — bu, ayrı bir
+tartışma konusu olarak makalede ele alınmalı.
+
+**Farklı olan şey ise çarpıcı**: aynı ORANSAL şiddet artışına iki organizmanın
+büyüme-tepki EĞRİSİ tamamen farklı şekilde cevap veriyor (uçurum vs.
+doğrusal). Bu, "hangi organizmayı baz aldığınız Mars-hayatta-kalabilirlik
+hikayenizi kökten değiştirir" sorusuna somut, ölçülmüş bir kanıt sağlıyor.
+
 ## Durum
 
 - [x] Referans (Dünya benzeri) büyüme doğrulandı — 0.118 /saat
@@ -282,6 +387,11 @@ makalenin Sınırlamalar bölümünde belirtilmeli — `dltABCD`'yi "esansiyel
 - [x] Karşılaştırmalı genomik (DEG, stres-toleransı gen listeleri) entegrasyonu
       — literatürden 4 kaynaklı regulon listesi derlendi ve doğrulandı;
       düzeltilmiş gen silme sonuçlarıyla çapraz kontrol edildi
+- [x] Ekstremofil karşılaştırması (Salinibacter ruber, iMB631) — B. subtilis'e
+      göre çok farklı bir büyüme-tepki eğrisi (uçurum yok, doğrusal düşüş)
+      ama aynı "esansiyel gen seti değişmiyor" sonucu (bkz. yukarı)
+- [ ] Minimal sentetik hücre yaklaşımı (JCVI-syn3.0 benzeri) — ayrı bir proje
+      olarak planlandı, kullanıcının asıl ilgilendiği yön
 - [ ] Tam metin yazımı
 
 Ayrıntılı 14 günlük yol haritası ve kaynak linkleri için: proje sohbetindeki

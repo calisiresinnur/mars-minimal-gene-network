@@ -3,6 +3,10 @@
 **IAC 2026 · IAF/IAA Space Life Sciences Symposium (A1) · Paper ID 114761**
 Yazar: Esinnur Çalışır, İstanbul Üniversitesi
 
+> Bu proje, üç kardeş projeden biridir. Dördü birlikte karşılaştıran
+> sentez tablosu için bkz.
+> [mars-hybrid-organism-network/KARSILASTIRMA.md](https://github.com/calisiresinnur/mars-hybrid-organism-network/blob/main/KARSILASTIRMA.md).
+
 ## Proje ne yapıyor
 
 Bu proje, kürasyonu yapılmış bir genom-ölçekli metabolik model (GEM) üzerinden, Mars

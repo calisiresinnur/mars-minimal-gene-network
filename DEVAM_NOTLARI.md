@@ -184,27 +184,31 @@ kısmen cevaplandı (madde 2.8). Sonraki adım olarak kullanıcı şunu istedi:
   iJL208 mi) daha uygun/erişilebilir olduğuna karar verilmedi; SBML
   dosyası indirilip cobra ile test edilmedi.
 
-## 6) Sıradaki somut adımlar (yeni sohbette buradan devam et)
+## 6) Sıradaki somut adımlar — GÜNCELLENDİ 2026-08-31
 
-1. JCVI-syn3A / minimal hücre GEM taramasını bitir: Breuer 2019'un ek
-   dosyalarını kontrol et, `Luthey-Schulten-Lab/Minimal_Cell` GitHub
-   reposuna bak, iJL208'i de araştır. Hangi model gerçekten indirilebilir
-   ve cobra ile FBA çalıştırılabilir durumda, karar ver.
-2. Kullanıcıyla yeni projenin nerede (hangi yerel klasör, GitHub'da yeni
-   repo adı ne olacak) oluşturulacağını netleştir.
-3. Yeni repo/proje iskeletini kur (README, requirements.txt, src/, data/,
-   .gitignore — mars-minimal-gene-network'ün yapısını şablon al).
-4. Seçilen minimal-hücre modelini indirip yerel önbelleğe al (aynı
-   Unicode-path / gzip-string yükleme çözümünü unutma).
-5. Araştırma sorusunu netleştir: "Mars'ta hayatta kalmak için gereken
-   MİNİMUM gen seti nedir" — muhtemelen mevcut minimal-hücre genomunu
-   Mars kısıtları altında test edip hangi genlerin (zaten minimal olan
-   493 gen içinde) Mars'a özgü ek kısıtlar getirdiğini bulmak, ya da
-   modeli daha da küçültmeye çalışmak (bu ikisi farklı sorular, hangisi
-   istendiği netleştirilmeli).
-6. Mars kısıtlarını bu modele uyarlarken B. subtilis/Salinibacter'de
-   kullanılan metodolojiyi (duyarlılık analizi + gen silme, SOLVER_TOLERANCE
-   1e-9'dan başlayarak) tekrar kullan.
+**Madde 1-4 TAMAMLANDI, ayrı bir projede devam ediyor:**
+`C:\Users\Ergün\Belgeler\mars-minimal-cell-network` (henüz GitHub'a
+push edilmedi — kullanıcıdan izin bekleniyor/isteniyor). Detaylar için o
+projenin kendi `DEVAM_NOTLARI.md`'sine bak. Özet: model = Breuer ve ark.
+2019 (eLife 36842) JCVI-syn3A metabolik ağı (iMMSYN, 155 gen/338 rxn/304
+metabolit), indirildi ve doğrulandı (eLife'ın "Figures and data"
+sayfasından Supplementary file 9); NGAM yapısı (ATPase/Protein_degrad/
+RNA_degrad sabit alt sınırları: 0.575/0.00035/0.0077) makalenin tam
+metniyle (JATS XML) birebir doğrulandı — ad hoc varsayım gerekmedi;
+`src/mars_fba.py` yazıldı ve bir solver-warm-start artefaktı canlı
+yakalanıp düzeltildi (infeasible durumda objective_value asla
+raporlanmıyor); ilk bulgu: B. subtilis'ten farklı olarak burada asıl
+kısıtlayıcı su değil **glikoz** (keskin uçurum glc_lb ≈ -0.8/-0.75
+mmol/gDW/h arasında; su tek başına kısıtlayıcı değil, feasible).
+
+**Kalan adımlar (yeni projede, kendi DEVAM_NOTLARI.md'sinin madde 5-6'sı):**
+
+5. Tam duyarlılık analizi + gen esansiyellik/silme analizi
+   (SOLVER_TOLERANCE=1e-9'dan başlayarak) — henüz yapılmadı.
+6. Üç modelin (B. subtilis/Salinibacter/JCVI-syn3A) karşılaştırmalı
+   "kısıtlayıcı darboğaz" bulgusu bir araya getirilmeli.
+7. GitHub'a push için kullanıcı onayı (yeni repo oluşturma, mevcut repoya
+   commit/push'tan farklı bir eylem olarak ayrıca teyit edilecek).
 
 ## 7) Genel hatırlatmalar
 

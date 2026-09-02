@@ -1,6 +1,18 @@
 # Proje Devam Notları — Başka Bir Sohbetten Devam Etmek İçin
 
-Son güncelleme: 2026-08-31
+Son güncelleme: 2026-09-01
+
+## ⚠️ EN SON VE EN ÖNEMLİ GÜNCELLEME (2026-09-01) — buraya önce bak
+
+Kullanıcı kritik bir soru sordu: "esansiyel gen listesi" gerçekten
+minimal bir gen ağı mı? Cevap: HAYIR. Tekli gen silme testi izoenzim/
+yedek-yol gruplarını yakalayamıyor. Test edildi: 171 "esansiyel" B.
+subtilis geninin oluşturduğu ağ **infeasible** (glikoliz+TCA döngüsü
+tamamen kayboluyor). Düzeltme: `src/minimal_ag_insa.py` (ardışık/
+açgözlü indirgeme) — gerçek minimal ağ: B. subtilis 262 gen (171 değil),
+Salinibacter 224 gen (148 değil). Detay: README > "KRİTİK DÜZELTME".
+**Bundan sonra herhangi bir "minimal gen ağı" iddiası için MUTLAKA bu
+yöntem kullanılmalı, tekli-silme sonucu asla yeterli kabul edilmemeli.**
 
 Bu dosya, bu projede şu ana kadar yapılan her şeyi, alınan kararları ve
 sıradaki adımı özetliyor. Yeni bir Claude Code sohbetine bu dosyayı

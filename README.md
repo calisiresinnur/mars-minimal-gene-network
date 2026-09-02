@@ -7,6 +7,39 @@ Yazar: Esinnur Çalışır, İstanbul Üniversitesi
 > sentez tablosu için bkz.
 > [mars-hybrid-organism-network/KARSILASTIRMA.md](https://github.com/calisiresinnur/mars-hybrid-organism-network/blob/main/KARSILASTIRMA.md).
 
+## ⚠️ KRİTİK DÜZELTME (2026-09-01): "esansiyel gen" ≠ "minimal gen ağı"
+
+Kullanıcının ısrarlı sorusu üzerine ortaya çıktı: bu projedeki (ve tüm
+kardeş projelerdeki) "esansiyel gen" bulguları **tekli gen silme**
+testinden geliyor — her gen DİĞER HERKES modelde dururken tek başına
+siliniyor. Bu, izoenzim/yedek-yol gruplarını (aynı işi yapabilen birden
+fazla gen) YAKALAYAMIYOR: her biri tek başına esansiyel değil (diğeri
+yedek oluyor) ama HEPSİ birden çıkarılırsa ağ çöküyor.
+
+**Test edildi**: "esansiyel olmayan" 673 geni AYNI ANDA çıkarınca ağ
+**infeasible** çıktı — çünkü glikoliz VE TCA döngüsünün TAMAMI (GLCpts,
+PGI, PFK, FBA, GAPD, PGK, ENO, PYK, CS, ACONT, ICDHyr, AKGDH, SUCOAS,
+FUM, MDH, PDH...) tek tek esansiyel değil ama hepsi birden gidince
+hücrenin enerji/karbon üretecek hiçbir yolu kalmıyor.
+
+**Düzeltme**: `src/minimal_ag_insa.py` — genleri TEK TEK, o ana kadar
+indirgenmiş ağa göre test eden ARDIŞIK/açgözlü bir indirgeme yöntemi.
+Sonuç:
+
+| | Tekli-silme "esansiyel" | Gerçek minimal ağ (ardışık) | Fark |
+|---|---|---|---|
+| B. subtilis (iYO844) | 171 | **262** | +91 (%53 fazla) |
+| Salinibacter (iMB631) | 148 | **224** | +76 (%51 fazla) |
+
+Her iki indirgenmiş ağ da **feasible** (gerçekten çalışıyor) ama WT'den
+çok daha yavaş büyüyor (yedek yollar gidince kapasite düşüyor — beklenen
+bir sonuç, gerçek minimal genom literatüründe de görülür).
+
+**Bu projedeki TÜM önceki "171/148 esansiyel gen" ifadeleri artık
+"gerçek minimal ağ" olarak OKUNMAMALI** — onlar sadece tekli-silme alt
+sınırıydı. Detay: `src/minimal_ag_insa.py` ve
+`src/extremofil_minimal_ag_insa.py` docstring'leri, `results/minimal_ag_*.csv`.
+
 ## Proje ne yapıyor
 
 Bu proje, kürasyonu yapılmış bir genom-ölçekli metabolik model (GEM) üzerinden, Mars

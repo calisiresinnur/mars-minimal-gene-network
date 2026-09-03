@@ -79,9 +79,13 @@ sıraya bu kadar duyarlı olması KENDİ BAŞINA anlamlı — bir genomun ne
 kadar yedekli olduğu, minimal ağ inşasının ne kadar "sıra-kararlı"
 olduğuna doğrudan yansıyor.
 
-**Salinibacter — eski bulgu DOĞRULANDI**: 7 senaryonun (referans + 6
-Mars) HEPSİNDE birebir aynı 224 gen — Mars gerçekten hiçbir fark
-yaratmıyor, bu sonuç artefakt değildi.
+**Salinibacter — eski bulgu DOĞRULANDI, ve TAMAMEN sıra-bağımsız**: 7
+senaryonun (referans + 6 Mars) HEPSİNDE birebir aynı 224 gen. Farklı bir
+rastgele sırayla da tekrarlandı: bu sefer 222 gen (mutlak sayı sıraya
+göre değişiyor, B. subtilis'teki gibi) ama Referans VE Mars YİNE birebir
+aynı çıktı (fark=0, iki set arasında tek bir gen farkı bile yok). Yani
+B. subtilis'in aksine, Salinibacter'in "Mars fark etmiyor" bulgusu
+gerçekten SIRADAN BAĞIMSIZ, sağlam bir sonuç.
 
 Detay ve tam gen listeleri: `results/minimal_ag_ozet_tum_senaryolar.csv`,
 `results/extremofil_minimal_ag_ozet_tum_senaryolar.csv`.

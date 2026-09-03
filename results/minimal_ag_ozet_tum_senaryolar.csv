@@ -1,0 +1,5 @@
+senaryo,tekli_silme_sayisi,gercek_minimal_sayisi,fark,indirgenmis_ag_buyume
+Dunya_referans,171,262,91,0.0018142291277289404
+Mars_bakim_x1.5_siki_marj,171,270,99,0.00016060793115668377
+Mars_bakim_x2.0_siki_marj,171,272,101,0.0010001917834294091
+Mars_bakim_x3.0_siki_marj,171,272,101,0.0003884996465531131

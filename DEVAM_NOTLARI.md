@@ -12,7 +12,16 @@ tamamen kayboluyor). Düzeltme: `src/minimal_ag_insa.py` (ardışık/
 açgözlü indirgeme) — gerçek minimal ağ: B. subtilis 262 gen (171 değil),
 Salinibacter 224 gen (148 değil). Detay: README > "KRİTİK DÜZELTME".
 **Bundan sonra herhangi bir "minimal gen ağı" iddiası için MUTLAKA bu
-yöntem kullanılmalı, tekli-silme sonucu asla yeterli kabul edilmemeli.**
+yöntem kullanılmalı, tekli-silme sonucu asla yeterli kabul edilmemiştir.**
+
+**Mars senaryoları da test edildi (2026-09-01, ikinci tur)**: B.
+subtilis'in eski "Mars, gen setini değiştirmiyor" bulgusu YANLIŞTI —
+doğru yöntemle Mars minimal ağı 14-16 gen DAHA BÜYÜK, hepsi solunum/
+enerji üretimi temalı (sitokrom oksidaz/redüktaz, TCA döngüsü, yüksek
+şiddette ACK/PTA — JCVI-syn3A'daki PDH/PTA/ACK bulgusuyla aynı aile).
+Salinibacter'in "Mars fark etmiyor" bulgusu ise DOĞRULANDI (7 senaryoda
+birebir aynı 224 gen). Detay: README > "Mars senaryoları da yeniden
+test edildi".
 
 Bu dosya, bu projede şu ana kadar yapılan her şeyi, alınan kararları ve
 sıradaki adımı özetliyor. Yeni bir Claude Code sohbetine bu dosyayı

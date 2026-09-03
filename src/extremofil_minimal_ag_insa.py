@@ -14,7 +14,8 @@ import os
 
 import pandas as pd
 
-from extremofil_fba import modeli_yukle, referans_ortami_uygula
+from extremofil_fba import bakim_reaksiyonunu_bul, mars_kisitlarini_uygula, modeli_yukle, referans_ortami_uygula
+from extremofil_gen_silme import MARS_SENARYOLARI
 
 PROJE_KOKU = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SONUC_KLASORU = os.path.join(PROJE_KOKU, "results")
@@ -59,33 +60,60 @@ def ardisik_indirgeme(model, esik=ESANSIYELLIK_ESIGI, sessiz=False):
     return tutulan, cikarilan, son_sol
 
 
+def senaryo_calistir(etiket, kisit_uygula):
+    model = modeli_yukle()
+    if kisit_uygula is not None:
+        kisit_uygula(model)
+    print(f"\n=== {etiket} ===")
+    tutulan, cikarilan, son_sol = ardisik_indirgeme(model)
+    print(f"Toplam gen: {len(tutulan) + len(cikarilan)} | Tutulan: {len(tutulan)} | "
+          f"Çıkarılan: {len(cikarilan)} | Son durum: {model.solver.status} | "
+          f"Büyüme: {son_sol.objective_value}")
+    return etiket, set(tutulan), set(cikarilan), son_sol.objective_value if model.solver.status == "optimal" else None
+
+
+def mars_kisiti(senaryo):
+    def uygula(model):
+        atpm = bakim_reaksiyonunu_bul(model)
+        mars_kisitlarini_uygula(
+            model, atpm, o2_ub=senaryo["o2"], glc_ub=senaryo["glc"], organik_ub=senaryo["org"],
+            h2o_ub=senaryo["h2o"], bakim_carpani=senaryo["bakim_carpani"], bakim_taban=3.15, sessiz=True,
+        )
+    return uygula
+
+
 def main():
     os.makedirs(SONUC_KLASORU, exist_ok=True)
 
-    print("=== Salinibacter ruber (iMB631) -- kalibre edilmiş referans için ARDIŞIK indirgeme ===")
-    model = modeli_yukle()
-    referans_ortami_uygula(model)
-    tutulan, cikarilan, son_sol = ardisik_indirgeme(model)
+    sonuclar = [senaryo_calistir("Referans", referans_ortami_uygula)]
+    for s in MARS_SENARYOLARI:
+        sonuclar.append(senaryo_calistir(s["etiket"], mars_kisiti(s)))
 
-    print(f"\nToplam gen: {len(tutulan) + len(cikarilan)}")
-    print(f"Tutulan (gerçekten gerekli) gen: {len(tutulan)}")
-    print(f"Çıkarılan (gerçekten gereksiz) gen: {len(cikarilan)}")
-    print(f"İndirgenmiş ağ son durum: {model.solver.status}, büyüme: {son_sol.objective_value}")
+    eski = pd.read_csv(os.path.join(SONUC_KLASORU, "extremofil_gen_silme_sonuclari.csv"))
 
-    eski_yol = os.path.join(SONUC_KLASORU, "extremofil_gen_silme_sonuclari.csv")
-    if os.path.exists(eski_yol):
-        eski = pd.read_csv(eski_yol)
-        kolon_adi = "senaryo" if "senaryo" in eski.columns else None
-        if kolon_adi:
-            ilk_senaryo = eski[kolon_adi].unique()[0]
-            eski_esansiyel = set(eski[(eski[kolon_adi] == ilk_senaryo) & (eski.esansiyel == True)].gen_id)
-            print(f"\nKarşılaştırma: tekli-silme esansiyel sayısı ({ilk_senaryo}): {len(eski_esansiyel)}")
-            print(f"Bu script'in tuttuğu gen sayısı: {len(tutulan)}")
+    print("\n\n=== ÖZET: her senaryo için tekli-silme vs gerçek minimal ağ ===")
+    satirlar = []
+    for etiket, tutulan, cikarilan, buyume in sonuclar:
+        eski_esansiyel = set(eski[(eski.senaryo == etiket) & (eski.esansiyel == True)].gen_id)
+        print(f"{etiket:26s}: tekli-silme={len(eski_esansiyel):4d}  gerçek_minimal={len(tutulan):4d}  "
+              f"fark=+{len(tutulan - eski_esansiyel):3d}  büyüme={buyume}")
+        satirlar.append(dict(senaryo=etiket, tekli_silme_sayisi=len(eski_esansiyel),
+                              gercek_minimal_sayisi=len(tutulan), fark=len(tutulan - eski_esansiyel),
+                              indirgenmis_ag_buyume=buyume))
+        pd.DataFrame({"gen_id": sorted(tutulan), "durum": "tutuldu_gerekli"}).to_csv(
+            os.path.join(SONUC_KLASORU, f"extremofil_minimal_ag_tutulan_genler_{etiket}.csv"), index=False)
 
-    pd.DataFrame({"gen_id": tutulan, "durum": "tutuldu_gerekli"}).to_csv(
-        os.path.join(SONUC_KLASORU, "extremofil_minimal_ag_tutulan_genler.csv"), index=False)
-    pd.DataFrame({"gen_id": cikarilan, "durum": "cikarildi_gereksiz"}).to_csv(
-        os.path.join(SONUC_KLASORU, "extremofil_minimal_ag_cikarilan_genler.csv"), index=False)
+    pd.DataFrame(satirlar).to_csv(os.path.join(SONUC_KLASORU, "extremofil_minimal_ag_ozet_tum_senaryolar.csv"), index=False)
+
+    print("\n=== Referans minimal ağı ile Mars minimal ağları arasındaki fark ===")
+    ref_tutulan = sonuclar[0][1]
+    for etiket, tutulan, _, _ in sonuclar[1:]:
+        sadece_mars = tutulan - ref_tutulan
+        sadece_ref = ref_tutulan - tutulan
+        print(f"{etiket}: Sadece Mars'ta gerekli: {len(sadece_mars)} gen "
+              f"({', '.join(sorted(sadece_mars)) if sadece_mars else '-'}) | "
+              f"Sadece referansta gerekli: {len(sadece_ref)} gen")
+
     print("\nKaydedildi: results/extremofil_minimal_ag_*.csv")
 
 

@@ -51,6 +51,7 @@ import sys
 import pandas as pd
 
 from mars_fba import bakim_reaksiyonunu_bul, mars_kisitlarini_uygula, modeli_yukle
+from mars_gen_silme import MARS_SENARYOLARI
 
 PROJE_KOKU = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SONUC_KLASORU = os.path.join(PROJE_KOKU, "results")
@@ -101,31 +102,64 @@ def ardisik_indirgeme(model, esik=ESANSIYELLIK_ESIGI, sessiz=False):
     return tutulan, cikarilan, son_sol
 
 
+def senaryo_calistir(etiket, kisit_uygula):
+    model = modeli_yukle()
+    if kisit_uygula is not None:
+        kisit_uygula(model)
+    print(f"\n=== {etiket} ===")
+    tutulan, cikarilan, son_sol = ardisik_indirgeme(model)
+    print(f"Toplam gen: {len(tutulan) + len(cikarilan)} | Tutulan: {len(tutulan)} | "
+          f"Çıkarılan: {len(cikarilan)} | Son durum: {model.solver.status} | "
+          f"Büyüme: {son_sol.objective_value}")
+    return etiket, set(tutulan), set(cikarilan), son_sol.objective_value if model.solver.status == "optimal" else None
+
+
+def mars_kisiti(senaryo):
+    def uygula(model):
+        atpm = bakim_reaksiyonunu_bul(model)
+        mars_kisitlarini_uygula(
+            model, atpm, o2_lb=senaryo["o2"], glc_lb=senaryo["glc"], h2o_cap=senaryo["h2o"],
+            bakim_carpani=senaryo["bakim_carpani"], sessiz=True,
+        )
+    return uygula
+
+
 def main():
     os.makedirs(SONUC_KLASORU, exist_ok=True)
 
-    print("=== B. subtilis (iYO844) -- Dünya benzeri referans için ARDIŞIK indirgeme ===")
-    model = modeli_yukle()
-    tutulan, cikarilan, son_sol = ardisik_indirgeme(model)
-
-    print(f"\nToplam gen: {len(tutulan) + len(cikarilan)}")
-    print(f"Tutulan (gerçekten gerekli) gen: {len(tutulan)}")
-    print(f"Çıkarılan (gerçekten gereksiz) gen: {len(cikarilan)}")
-    print(f"İndirgenmiş ağ son durum: {model.solver.status}, büyüme: {son_sol.objective_value}")
+    sonuclar = [senaryo_calistir("Dunya_referans", None)]
+    for s in MARS_SENARYOLARI:
+        sonuclar.append(senaryo_calistir(s["etiket"], mars_kisiti(s)))
 
     # Karsilastirma: mars_gen_silme.py'nin (yanlis) "esansiyel gen" sayisiyla
     eski = pd.read_csv(os.path.join(SONUC_KLASORU, "gen_silme_sonuclari.csv"))
-    eski_esansiyel = set(eski[(eski.senaryo == "Dunya_referans") & (eski.esansiyel == True)].gen_id)
-    print(f"\nKarşılaştırma: mars_gen_silme.py'nin (tekli-silme) esansiyel sayısı: {len(eski_esansiyel)}")
-    print(f"Bu script'in (ardışık, gerçekten işlevsel) tuttuğu gen sayısı: {len(tutulan)}")
-    fark = set(tutulan) - eski_esansiyel
-    print(f"Sadece bu yöntemde 'gerekli' çıkan ama tekli-silmede 'esansiyel değil' denen gen sayısı: {len(fark)}")
 
-    pd.DataFrame({"gen_id": tutulan, "durum": "tutuldu_gerekli"}).to_csv(
-        os.path.join(SONUC_KLASORU, "minimal_ag_tutulan_genler_Dunya.csv"), index=False)
-    pd.DataFrame({"gen_id": cikarilan, "durum": "cikarildi_gereksiz"}).to_csv(
-        os.path.join(SONUC_KLASORU, "minimal_ag_cikarilan_genler_Dunya.csv"), index=False)
-    print("\nKaydedildi: results/minimal_ag_tutulan_genler_Dunya.csv, results/minimal_ag_cikarilan_genler_Dunya.csv")
+    print("\n\n=== ÖZET: her senaryo için tekli-silme vs gerçek minimal ağ ===")
+    satirlar = []
+    for etiket, tutulan, cikarilan, buyume in sonuclar:
+        eski_esansiyel = set(eski[(eski.senaryo == etiket) & (eski.esansiyel == True)].gen_id)
+        print(f"{etiket:32s}: tekli-silme={len(eski_esansiyel):4d}  gerçek_minimal={len(tutulan):4d}  "
+              f"fark=+{len(tutulan - eski_esansiyel):3d}  büyüme={buyume}")
+        satirlar.append(dict(senaryo=etiket, tekli_silme_sayisi=len(eski_esansiyel),
+                              gercek_minimal_sayisi=len(tutulan), fark=len(tutulan - eski_esansiyel),
+                              indirgenmis_ag_buyume=buyume))
+        pd.DataFrame({"gen_id": sorted(tutulan), "durum": "tutuldu_gerekli"}).to_csv(
+            os.path.join(SONUC_KLASORU, f"minimal_ag_tutulan_genler_{etiket}.csv"), index=False)
+
+    pd.DataFrame(satirlar).to_csv(os.path.join(SONUC_KLASORU, "minimal_ag_ozet_tum_senaryolar.csv"), index=False)
+
+    # Dunya minimal ag ile her Mars minimal agini karsilastir
+    print("\n=== Dünya minimal ağı ile Mars minimal ağları arasındaki fark ===")
+    dunya_tutulan = sonuclar[0][1]
+    for etiket, tutulan, _, _ in sonuclar[1:]:
+        sadece_mars = tutulan - dunya_tutulan
+        sadece_dunya = dunya_tutulan - tutulan
+        print(f"{etiket}: Sadece Mars'ta gerekli: {len(sadece_mars)} gen "
+              f"({', '.join(sorted(sadece_mars)) if sadece_mars else '-'}) | "
+              f"Sadece Dünya'da gerekli: {len(sadece_dunya)} gen")
+
+    print("\nKaydedildi: results/minimal_ag_tutulan_genler_<senaryo>.csv, "
+          "results/minimal_ag_ozet_tum_senaryolar.csv")
 
 
 if __name__ == "__main__":

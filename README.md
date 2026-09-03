@@ -40,6 +40,36 @@ bir sonuç, gerçek minimal genom literatüründe de görülür).
 sınırıydı. Detay: `src/minimal_ag_insa.py` ve
 `src/extremofil_minimal_ag_insa.py` docstring'leri, `results/minimal_ag_*.csv`.
 
+## Mars senaryoları da yeniden test edildi — B. subtilis'te bulgu TERSİNE DÖNDÜ
+
+Aynı ardışık yöntem, referansın yanı sıra 3 Mars senaryosunda (B.
+subtilis) ve 6 Mars senaryosunda (Salinibacter) da çalıştırıldı.
+
+**B. subtilis — eski bulgu YANLIŞTI**: Önceki (tekli-silme) analiz
+"171 esansiyel gen, Dünya ve Mars'ta TIPATIP AYNI" diyordu. Doğru
+yöntemle: Mars'ın minimal ağı Dünya'dan **14-16 gen DAHA BÜYÜK**
+(262 → 270-272). Mars'a özgü yeni gerekli genler tek bir temaya
+toplanıyor — **solunum/enerji üretimi**:
+- Sitokrom c oksidaz (CYOO3, 4 gen) ve sitokrom c redüktaz (CYOR3m, 3 gen)
+  — solunum elektron taşıma zinciri
+- 2-Oksoglutarat dehidrogenaz (AKGDH), süksinat dehidrogenaz (SUCD),
+  malat dehidrogenaz (MDH), fumaraz (FUM) — TCA döngüsü
+- Daha yüksek şiddette (×2.0/×3.0): **Asetat kinaz (ACKr) ve
+  fosfotransasetilaz (PTAr)** — substrat düzeyinde fosforilasyon
+
+**Bu, JCVI-syn3A'daki PDH→PTA→ACK bulgusuyla (mars-minimal-cell-network)
+AYNI enzim ailesi** — iki bağımsız organizmada, iki bağımsız modelde,
+enerji darboğazında aynı "yedek ATP üretim yolu vazgeçilmez hale
+geliyor" prensibi ortaya çıkıyor. Ayrıca Cyanothece'deki (mars-hybrid-
+organism-network) elektron taşıma zinciri bulgusuyla da aynı ailede.
+
+**Salinibacter — eski bulgu DOĞRULANDI**: 7 senaryonun (referans + 6
+Mars) HEPSİNDE birebir aynı 224 gen — Mars gerçekten hiçbir fark
+yaratmıyor, bu sonuç artefakt değildi.
+
+Detay ve tam gen listeleri: `results/minimal_ag_ozet_tum_senaryolar.csv`,
+`results/extremofil_minimal_ag_ozet_tum_senaryolar.csv`.
+
 ## Proje ne yapıyor
 
 Bu proje, kürasyonu yapılmış bir genom-ölçekli metabolik model (GEM) üzerinden, Mars

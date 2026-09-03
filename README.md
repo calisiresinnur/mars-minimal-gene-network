@@ -70,6 +70,46 @@ yaratmıyor, bu sonuç artefakt değildi.
 Detay ve tam gen listeleri: `results/minimal_ag_ozet_tum_senaryolar.csv`,
 `results/extremofil_minimal_ag_ozet_tum_senaryolar.csv`.
 
+### Ek bulgular
+
+**Sadece Dünya'da gerekli, Mars'ta değil (ters yön) — 6 gen**: Bunlardan
+biri (`CYTB_B3`, menakinol oksidaz — 4 gen) gerçekten anlamlı bir hikaye:
+Mars minimal ağı bu terminal oksidazı DEĞİL, sitokrom c oksidaz/redüktaz
+kompleksini (CYOO3/CYOR3m) kullanıyor — yani Mars koşulları hücreyi
+**farklı bir solunum terminal kompleksine** kaydırıyor, sadece "daha
+fazla gen" değil. Diğer genler (SSALy, çoklu-fonksiyonlu taşıyıcı
+BSU07570) muhtemelen ardışık yöntemin sıra-bağımlılığından kaynaklanan
+daha az anlamlı seçimler — izoenzim gruplarından HANGİSİNİN tutulacağı
+test sırasına bağlı olabilir (bkz. `minimal_ag_insa.py` docstring'indeki
+dürüstlük notu).
+
+**Mars'a özgü yeni genler (solunum/TCA/ACK-PTA), gerçek stres-regulonu
+literatüründe (PerR/SigV/ResDE/ISS-DEG, `data/stres_regulon_genleri.csv`)
+YOK** — hiçbir örtüşme yok. Bu şaşırtıcı değil, kavramsal olarak
+anlamlı: regulon/DEG çalışmaları **transkripsiyonel yanıtı** (stres
+altında ifadesi DEĞİŞEN genler) yakalıyor; bizim bulgumuz ise tamamen
+farklı bir mekanizma — **yedeklilik kaybı**. Bu genlerin ifadesi hiç
+değişmeyebilir, sadece Mars'ın kısıtlı kaynak bütçesinde "yedek yolları"
+artık yeterli gelmiyor. Yani bu, mevcut regulon literatürünün
+YAKALAYAMAYACAĞI, FBA'ya özgü bir bulgu türü — deneysel transkriptomik
+çalışmalar bunu göremez çünkü bu genlerin İFADESİ değil, GEREKLİLİĞİ
+değişiyor.
+
+## Sonuç — proje bu haliyle tamamlanmış sayılıyor
+
+1. **B. subtilis'in Mars minimal gen ağı, Dünya'dan gerçekten farklı**
+   (262→270-272 gen) — enerji/solunum darboğazı temalı, JCVI-syn3A'daki
+   PDH/PTA/ACK bulgusuyla aynı ailede.
+2. **Salinibacter'in minimal gen ağı Mars'tan etkilenmiyor** (224 gen,
+   7 senaryoda sabit) — B. subtilis'ten niteliksel olarak farklı bir
+   dayanıklılık profili.
+3. Her iki organizmada da tekli-gen-silme'nin ciddi şekilde eksik
+   raporladığı (B. subtilis'te %53, Salinibacter'de %51 fazla gen
+   gerekiyor) doğrulandı ve düzeltildi.
+4. Mars-özgü genler mevcut stres-regulonu literatüründe yok — bu,
+   deneysel transkriptomik ile hesaplamalı essentiality analizinin
+   FARKLI, birbirini TAMAMLAYAN bilgi türleri yakaladığının bir kanıtı.
+
 ## Proje ne yapıyor
 
 Bu proje, kürasyonu yapılmış bir genom-ölçekli metabolik model (GEM) üzerinden, Mars
@@ -96,19 +136,26 @@ BiGG/BioModels üzerinden hazır ve kürasyonu yapılmış).
 ├── results/
 │   ├── duyarlilik_sonuclari.csv        # mars_duyarlilik.py çıktısı (357 senaryo)
 │   ├── buyume_vs_siddet.png            # Büyüme oranı / kısıt şiddeti grafiği
-│   ├── gen_silme_sonuclari.csv         # mars_gen_silme.py ham çıktısı (4 senaryo x 844 gen)
-│   ├── mars_yeni_esansiyel_genler.csv  # Mars'a özgü YENİ esansiyel gen adayları (boş: bulunamadı)
-│   ├── mars_dispanse_olan_genler.csv   # Mars'ta esansiyellikten çıkan genler (pabB, menC, menD)
-│   └── deg_karsilastirma.csv           # FBA sonuçları x literatür stres-regulonu çapraz tablosu
+│   ├── gen_silme_sonuclari.csv         # mars_gen_silme.py ham çıktısı (4 senaryo x 844 gen, TEKLİ silme)
+│   ├── mars_yeni_esansiyel_genler.csv  # Tekli-silme bazlı Mars-özgü aday listesi (boş — bkz. not aşağıda)
+│   ├── mars_dispanse_olan_genler.csv   # Tekli-silme bazlı; DÜZELTİLMİŞ bulgu: boş (hiçbir gen çıkmıyor
+│   │                                   #   — ilk "pabB/menC/menD" bulgusu tolerance artefaktıydı, düzeltildi)
+│   ├── deg_karsilastirma.csv           # FBA sonuçları x literatür stres-regulonu çapraz tablosu
+│   ├── minimal_ag_ozet_tum_senaryolar.csv          # GERÇEK minimal ağ özeti (B. subtilis, 4 senaryo)
+│   ├── minimal_ag_tutulan_genler_<senaryo>.csv     # Her senaryonun gerçek minimal gen listesi
+│   ├── extremofil_minimal_ag_ozet_tum_senaryolar.csv      # GERÇEK minimal ağ özeti (Salinibacter, 7 senaryo)
+│   └── extremofil_minimal_ag_tutulan_genler_<senaryo>.csv # Her senaryonun gerçek minimal gen listesi
 └── src/
-    ├── mars_fba.py              # Model yükleme + Mars kısıtları + FBA (ana script)
-    ├── mars_kalibrasyon.py      # İlk elle-seçilmiş senaryolarla hızlı doğruluk kontrolü
-    ├── mars_duyarlilik.py       # Sistematik duyarlılık analizi + grafik/CSV çıktısı
-    ├── mars_gen_silme.py        # Tekli gen silme analizi (4 senaryo x 844 gen)
+    ├── mars_fba.py               # Model yükleme + Mars kısıtları + FBA (ana script)
+    ├── mars_kalibrasyon.py       # İlk elle-seçilmiş senaryolarla hızlı doğruluk kontrolü
+    ├── mars_duyarlilik.py        # Sistematik duyarlılık analizi + grafik/CSV çıktısı
+    ├── mars_gen_silme.py         # Tekli gen silme analizi (4 senaryo x 844 gen) — ALT SINIR, bkz. düzeltme
+    ├── minimal_ag_insa.py        # GERÇEK minimal ağ — ardışık indirgeme (B. subtilis, 4 senaryo)
     ├── mars_deg_karsilastirma.py # FBA sonuçlarını literatür DEG/stres-regulonuyla karşılaştırma
-    ├── extremofil_fba.py        # Salinibacter ruber (iMB631) için Mars FBA -- iYO844 analoğu
-    ├── extremofil_duyarlilik.py # Salinibacter için duyarlılık analizi
-    └── extremofil_gen_silme.py  # Salinibacter için tekli gen silme analizi
+    ├── extremofil_fba.py         # Salinibacter ruber (iMB631) için Mars FBA -- iYO844 analoğu
+    ├── extremofil_duyarlilik.py  # Salinibacter için duyarlılık analizi
+    ├── extremofil_gen_silme.py   # Salinibacter için tekli gen silme analizi — ALT SINIR
+    └── extremofil_minimal_ag_insa.py  # GERÇEK minimal ağ (Salinibacter, 7 senaryo)
 ```
 
 ## Kurulum ve çalıştırma
@@ -123,10 +170,12 @@ python src/mars_fba.py
 python src/mars_kalibrasyon.py
 python src/mars_duyarlilik.py
 python src/mars_gen_silme.py
+python src/minimal_ag_insa.py         # GERÇEK minimal ağ (mars_gen_silme.py'nin sonucu ALT SINIRDIR)
 python src/mars_deg_karsilastirma.py
 python src/extremofil_fba.py
 python src/extremofil_duyarlilik.py
 python src/extremofil_gen_silme.py
+python src/extremofil_minimal_ag_insa.py  # GERÇEK minimal ağ (Salinibacter)
 ```
 
 PowerShell "çalıştırma politikası" hatası verirse (venv aktive olmuyorsa), önce şunu
@@ -257,15 +306,20 @@ akıyı "toleransa sığıyor" diye feasible kabul etmesine yol açtı. Toleranc
 menD, folEA) dördü de Mars'ın üç senaryosunda da Dünya'daki gibi TAM
 ESANSİYEL** çıkıyor.
 
-**Düzeltilmiş bulgu**: Dünya benzeri referans ve Mars'ın test edilen üç
-senaryosunun (bakım×1.5/×2/×3, sınıra çok yakın "sıkı marj" noktası)
-**hepsinde tam olarak aynı 171 esansiyel gen** bulunuyor — hiçbir gen ne
-YENİ esansiyel oluyor ne de esansiyellikten çıkıyor. Daha önce test edilen
-daha rahat "hafif marj" (t*+0.05, büyüme ~%11.5 Dünya) noktasında da aynı
-sonuç (171=171) bulunmuştu. Yani **bu analizde test edilen Mars senaryoları,
-Dünya'ya kıyasla gen-esansiyellik manzarasını hiç değiştirmiyor** — model,
-hayatta kalabildiği her koşulda aynı ~171 genlik çekirdek genom setine
-ihtiyaç duyuyor.
+**Düzeltilmiş bulgu (tekli-silme, alt sınır)**: Dünya benzeri referans ve
+Mars'ın test edilen üç senaryosunun (bakım×1.5/×2/×3, sınıra çok yakın
+"sıkı marj" noktası) **hepsinde tam olarak aynı 171 esansiyel gen**
+bulunuyor — hiçbir gen ne YENİ esansiyel oluyor ne de esansiyellikten
+çıkıyor.
+
+> ⚠️ **BU BULGU DAHA SONRA (2026-09-01) TERSİNE DÖNDÜ** — yukarıdaki
+> "171" sayısının kendisi tekli-gen-silmeden geliyordu, izoenzim/yedek-
+> yol gruplarını yakalayamıyordu. Gerçek (ardışık indirgeme ile kurulan)
+> minimal ağ testinde Mars'ın minimal gen ağı Dünya'dan **14-16 gen DAHA
+> BÜYÜK** çıktı — bkz. sayfanın en üstündeki "Mars senaryoları da yeniden
+> test edildi" bölümü. Aşağıdaki paragraf (ve altındaki DEG karşılaştırması)
+> tarihsel bağlam olarak kalıyor ama **"Mars gen-esansiyellik manzarasını
+> hiç değiştirmiyor" sonucu artık geçerli değil.**
 
 **Metodolojik ders**: Hayatta kalma sınırına çok yakın (WT büyüme ≲0.01/saat
 gibi) FBA senaryolarında gen silme/esansiyellik analizi yapılırken solver
@@ -414,6 +468,9 @@ birini tek tek sildi (`results/extremofil_gen_silme_sonuclari.csv`, baştan
 
 **Sonuç: 148 esansiyel gen / 632, 7 senaryonun (referans + 6 Mars) HEPSİNDE
 aynı** — hiçbir gen ne yeni esansiyel oluyor ne de esansiyellikten çıkıyor.
+(Bu "148" tekli-silme alt sınırı; gerçek minimal ağ 224 gen — bkz. yukarıdaki
+düzeltme bölümü. Ama "Mars hiçbir fark yaratmıyor" SONUCU her iki yöntemle
+de aynı, bu yüzden B. subtilis'teki gibi tersine dönmedi.)
 
 ### Karşılaştırmalı özet: B. subtilis (iYO844) vs Salinibacter ruber (iMB631)
 

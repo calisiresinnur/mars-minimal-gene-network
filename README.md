@@ -47,21 +47,37 @@ subtilis) ve 6 Mars senaryosunda (Salinibacter) da çalıştırıldı.
 
 **B. subtilis — eski bulgu YANLIŞTI**: Önceki (tekli-silme) analiz
 "171 esansiyel gen, Dünya ve Mars'ta TIPATIP AYNI" diyordu. Doğru
-yöntemle: Mars'ın minimal ağı Dünya'dan **14-16 gen DAHA BÜYÜK**
-(262 → 270-272). Mars'a özgü yeni gerekli genler tek bir temaya
-toplanıyor — **solunum/enerji üretimi**:
-- Sitokrom c oksidaz (CYOO3, 4 gen) ve sitokrom c redüktaz (CYOR3m, 3 gen)
-  — solunum elektron taşıma zinciri
-- 2-Oksoglutarat dehidrogenaz (AKGDH), süksinat dehidrogenaz (SUCD),
-  malat dehidrogenaz (MDH), fumaraz (FUM) — TCA döngüsü
-- Daha yüksek şiddette (×2.0/×3.0): **Asetat kinaz (ACKr) ve
-  fosfotransasetilaz (PTAr)** — substrat düzeyinde fosforilasyon
+yöntemle: Mars'ın minimal ağı Dünya'dan genellikle DAHA BÜYÜK çıkıyor —
+ama **kesin sayı sağlam değil**, çünkü ardışık/açgözlü yöntem genlerin
+test edilme SIRASINA duyarlı (bu, izoenzim gruplarından hangisinin
+tutulacağının sıraya bağlı olmasından kaynaklanıyor, bkz.
+`minimal_ag_insa.py` docstring'i).
 
-**Bu, JCVI-syn3A'daki PDH→PTA→ACK bulgusuyla (mars-minimal-cell-network)
-AYNI enzim ailesi** — iki bağımsız organizmada, iki bağımsız modelde,
-enerji darboğazında aynı "yedek ATP üretim yolu vazgeçilmez hale
-geliyor" prensibi ortaya çıkıyor. Ayrıca Cyanothece'deki (mars-hybrid-
-organism-network) elektron taşıma zinciri bulgusuyla da aynı ailede.
+**Sağlamlık testi (6 farklı sıralama denendi)**: Fark (Mars−Dünya) gen
+sayısı: orijinal sırada +8, 4 rastgele sırada +9/+11/+2/+0, tam ters
+sırada −4. **5/6 denemede Mars ≥ Dünya** — yön genel olarak pozitif
+ama BÜYÜKLÜK sıraya göre 0'dan +11'e değişiyor. Bu yüzden "+14-16 gen"
+gibi kesin bir sayı yerine **"tipik olarak birkaç ila ~10 gen daha
+fazla, sıraya duyarlı"** ifadesi daha dürüst.
+
+**Ama TEMA sağlam**: iki farklı rastgele sıralamada da **sitokrom c
+oksidaz (CYOO3) ve sitokrom c redüktaz (CYOR3m)** — solunum elektron
+taşıma zinciri — Mars'a özgü çıktı (BİREBİR aynı genler, BSU14890-14920
+ve BSU22540-22560). TCA döngüsü teması de tutarlı ama HANGİ spesifik
+enzimin (AKGDH/SUCD/MDH/FUM ya da SUCOAS) seçildiği sıraya göre
+değişiyor — TCA döngüsünün kendi iç bağlantılılığı nedeniyle birden
+fazla "giriş noktası" işlevsel olarak eşdeğer. Orijinal sırada ayrıca
+yüksek şiddette **Asetat kinaz (ACKr) + fosfotransasetilaz (PTAr)**
+bulundu — bu, JCVI-syn3A'daki PDH→PTA→ACK bulgusuyla (mars-minimal-cell-
+network) AYNI enzim ailesi, ama bu spesifik bulgunun kendisi ayrıca
+sıra-sağlamlık testinden geçirilmedi (tek seferlik gözlem olarak
+işaretli kalıyor).
+
+**Meta-bulgu**: JCVI-syn3A'nın (aşağıya bkz.) minimal ağı 2 farklı
+rastgele sırada da TAMAMEN AYNI (deterministik) çıkarken, B. subtilis'in
+sıraya bu kadar duyarlı olması KENDİ BAŞINA anlamlı — bir genomun ne
+kadar yedekli olduğu, minimal ağ inşasının ne kadar "sıra-kararlı"
+olduğuna doğrudan yansıyor.
 
 **Salinibacter — eski bulgu DOĞRULANDI**: 7 senaryonun (referans + 6
 Mars) HEPSİNDE birebir aynı 224 gen — Mars gerçekten hiçbir fark
@@ -97,9 +113,11 @@ değişiyor.
 
 ## Sonuç — proje bu haliyle tamamlanmış sayılıyor
 
-1. **B. subtilis'in Mars minimal gen ağı, Dünya'dan gerçekten farklı**
-   (262→270-272 gen) — enerji/solunum darboğazı temalı, JCVI-syn3A'daki
-   PDH/PTA/ACK bulgusuyla aynı ailede.
+1. **B. subtilis'in Mars minimal gen ağı, Dünya'dan genellikle daha
+   büyük** (kesin sayı sıraya duyarlı, tipik olarak birkaç-~10 gen
+   fazla) — solunum elektron taşıma zinciri (CYOO3/CYOR3m) sıra-
+   sağlamlık testinden geçmiş, güvenilir bir bulgu; TCA döngüsü/ACK-PTA
+   teması destekleyici ama daha az kesin.
 2. **Salinibacter'in minimal gen ağı Mars'tan etkilenmiyor** (224 gen,
    7 senaryoda sabit) — B. subtilis'ten niteliksel olarak farklı bir
    dayanıklılık profili.

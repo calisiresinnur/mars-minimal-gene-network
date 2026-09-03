@@ -16,12 +16,18 @@ yöntem kullanılmalı, tekli-silme sonucu asla yeterli kabul edilmemiştir.**
 
 **Mars senaryoları da test edildi (2026-09-01, ikinci tur)**: B.
 subtilis'in eski "Mars, gen setini değiştirmiyor" bulgusu YANLIŞTI —
-doğru yöntemle Mars minimal ağı 14-16 gen DAHA BÜYÜK, hepsi solunum/
-enerji üretimi temalı (sitokrom oksidaz/redüktaz, TCA döngüsü, yüksek
-şiddette ACK/PTA — JCVI-syn3A'daki PDH/PTA/ACK bulgusuyla aynı aile).
-Salinibacter'in "Mars fark etmiyor" bulgusu ise DOĞRULANDI (7 senaryoda
-birebir aynı 224 gen). Detay: README > "Mars senaryoları da yeniden
-test edildi".
+Mars minimal ağı genellikle daha büyük. Salinibacter'in "Mars fark
+etmiyor" bulgusu DOĞRULANDI (7 senaryoda birebir aynı 224 gen).
+
+**Sıra-sağlamlık testi (2026-09-01, üçüncü tur) — ÖNEMLİ DÜZELTME**:
+İlk "+14-16 gen" iddiası tek bir gen sıralamasına dayanıyordu. 6 farklı
+sıralama (orijinal + 4 rastgele + tam ters) test edildi: fark −4 ile
++11 arasında değişiyor, 5/6'sı pozitif. **Kesin sayı sağlam değil**,
+ama solunum elektron taşıma zinciri (CYOO3/CYOR3m) İKİ farklı rastgele
+sırada da BİREBİR AYNI genlerle Mars'a özgü çıktı — bu tema sağlam.
+JCVI-syn3A'nın (PDH/PTA/ACK) bulgusu ise 2 farklı sırada TAMAMEN
+DETERMİNİSTİK (aynı 4 gen) — JCVI-syn3A'nın az yedekliliğiyle tutarlı.
+Detay: README > "Mars senaryoları da yeniden test edildi".
 
 Bu dosya, bu projede şu ana kadar yapılan her şeyi, alınan kararları ve
 sıradaki adımı özetliyor. Yeni bir Claude Code sohbetine bu dosyayı
